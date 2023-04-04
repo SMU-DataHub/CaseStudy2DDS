@@ -1,0 +1,82 @@
+---
+title: "Project_2a"
+author: "Todd Garner"
+date: "2023-04-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(dev = c('pdf', 'png'), 
+        fig.align = 'center', fig.height = 5, fig.width = 8.5, 
+        pdf.options(encoding = "ISOLatin9.enc")) 
+
+library(class)
+library(caret)
+library(e1071)
+library(dplyr)
+library(jsonlite)
+library(ggplot2)
+library(ggthemes)
+library(tidyverse)
+library(gridExtra)
+```
+
+We want to find a way to predict attrition, given the data set CaseStudy2-data.csv. There are 36 columns including attrition. We need a classification (Yes or No) given the model we can design. We could look at it also as a recommendation model, but that seems a bit weaker than a classification. We have three methods to choose from as a requirement. KNN, Naive Bayes and Linear Regression. Logistic regression would be better as that's more of a classification model. The models are described below (using ChatGPT 4.0):
+
+##Naive Bayes ***Naive Bayes is a statistical algorithm used in data science for [classification and prediction tasks]{.underline}. It is based on Bayes' theorem, which describes the probability of an event based on prior knowledge of conditions that might be related to the event.***
+
+***In the context of data science, Naive Bayes is often used for text classification, spam filtering, sentiment analysis, and recommendation systems. It assumes that the presence or absence of a particular feature in a class is unrelated to the presence or absence of any other feature in that class. This is known as the "naive" assumption, and it simplifies the calculations necessary for classification.***
+
+***Naive Bayes works by first calculating the probability of each class given the input features. This is known as the prior probability. It then calculates the likelihood of each feature given the class. Finally, it combines these probabilities using Bayes' theorem to calculate the posterior probability of each class given the input features. The class with the highest posterior probability is the predicted class for the input.***
+
+***Overall, Naive Bayes is a fast and efficient algorithm that can be trained quickly and can handle large amounts of data. However, it may not always be the best choice for complex classification tasks or when the "naive" assumption is not appropriate.***
+
+##KNN(K nearest neighbors) ***K-nearest neighbors (KNN) is a non-parametric algorithm used in data science for both classification and regression tasks. It is a simple yet powerful algorithm that works by finding the K nearest data points to the new data point in question and then classifying or predicting the new data point based on the labels or values of its K nearest neighbors.***
+
+***In KNN, K is a hyperparameter that must be set before training the algorithm. It represents the number of neighbors that will be considered when classifying or predicting a new data point. To find the K nearest neighbors, KNN uses a distance metric (e.g., Euclidean distance) to calculate the distance between each data point in the training set and the new data point. The K nearest data points to the new data point are those with the smallest distances.***
+
+***For classification tasks, KNN assigns the class label that is most common among the K nearest neighbors to the new data point. For regression tasks, KNN assigns the average value of the K nearest neighbors to the new data point.***
+
+***KNN is a versatile algorithm that can work well with both linear and non-linear data. It can handle multi-class classification and can also be used for anomaly detection. However, it can be computationally expensive, especially for large datasets, and can be sensitive to the choice of K and the distance metric used.***
+
+###Different types of KNN methods:  KNN, KNN.cv and KNN LOOCV they are described as follows
+*KNN, KNN.cv, and KNN-LOOCV are all variations of the K-nearest neighbors algorithm, but with different techniques for evaluating the performance of the algorithm.*
+
+*KNN is the basic K-nearest neighbors algorithm that works by finding the K nearest neighbors to a new data point and classifying it based on the class labels of those neighbors.*
+
+*KNN.cv is a variation of KNN that uses cross-validation to evaluate the performance of the algorithm. Cross-validation involves dividing the data into multiple subsets, training the algorithm on one subset, and testing it on another subset. KNN.cv repeats this process multiple times with different subsets of the data and averages the results to get a more accurate estimate of the algorithm's performance.*
+
+*KNN-LOOCV is another variation of KNN that uses leave-one-out cross-validation (LOOCV) to evaluate the performance of the algorithm. LOOCV involves training the algorithm on all but one data point and testing it on the left-out data point. This process is repeated for every data point in the dataset, and the results are averaged to get a more accurate estimate of the algorithm's performance.*
+
+*The main difference between these variations of KNN is the method used for evaluating the performance of the algorithm. KNN is the basic algorithm that doesn't use any evaluation technique, while KNN.cv and KNN-LOOCV use cross-validation and leave-one-out cross-validation, respectively, to estimate the performance of the algorithm. KNN.cv and KNN-LOOCV are generally considered to provide more accurate estimates of the algorithm's performance than KNN alone, but they can be more computationally expensive.*
+
+##Linear Regression (single and multiple linear regression) ***Linear regression is a statistical method used in data science for modeling the relationship between a dependent variable and one or more independent variables. The goal of linear regression is to find the best-fit line or plane that minimizes the distance between the predicted values and the actual values of the dependent variable.***
+
+***In simple linear regression, there is only one independent variable, and the relationship between the dependent variable and the independent variable is assumed to be linear. The best-fit line is determined by calculating the slope and intercept of the line that minimizes the sum of squared errors between the predicted values and the actual values of the dependent variable.***
+
+***In multiple linear regression, there are two or more independent variables, and the relationship between the [dependent variable and the independent variables is still assumed to be linear]{.underline}. The best-fit plane is determined by calculating the coefficients of the plane that minimize the sum of squared errors between the predicted values and the actual values of the dependent variable.***
+
+***In both types of linear regression, the goal is to find the parameters that best describe the relationship between the independent variables and the dependent variable. These parameters are estimated using a method called ordinary least squares (OLS), which finds the values of the coefficients that minimize the sum of squared errors between the predicted values and the actual values of the dependent variable.***
+
+***Linear regression can be used for both prediction and inference tasks. In prediction tasks, the goal is to use the model to predict the value of the dependent variable for new values of the independent variables. In inference tasks, the goal is to understand the relationship between the independent variables and the dependent variable and to test hypotheses about this relationship.***
+
+***Overall, linear regression is a powerful and widely used method in data science for modeling the relationship between variables. Singular regression is simply another term for simple linear regression, which only has one independent variable.***
+
+##Thoughts about the different types of methods
+(@) KNN - Used for both classification and regression tasks. I would think that KNN LOOCV would be the most accurate.  But, with 36 columns of data and 870 rows, this could take some time to crunch. (Hmmm.....wonder if there's any coincidence that Unit 13 was on AWS and RStudio?)  
+
+(@) Linear Regression and Multiple Linear Regression - I looked up and found an article on the 7 steps that must be met to accomplish SLR or MLR.  
+  a. Dependent Variable must be continuous or discrete, while independent variable must be continuous, discrete or ordinal. 
+  b. Only linear relationships between independent variable and the dependent variables.
+  c. No Multicollinearity must exist between the independent variables.
+  d. The error variances are all equal
+  e. The error terms are normally distributed
+  f. No significant outliers
+  g. No auto-correlation of the error terms
+
+That may be a tall order and may end up throwing out valuable variables.  
+
+(@) Naive-Bayes - I asked ChatGPT 4.0 about the pros and cons of Naive-Bayes.  **Overall, Naive Bayes is a powerful and efficient algorithm that can be used in a variety of classification problems. However, its performance depends heavily on the quality and relevance of the features used, and it may not always be the best choice for more complex problems.**  In particular, it suffers the same issue that SLR/MLR does in that factors that may have co-linearity.  It assumes that all of the features are independent of each other, which may not be a good assumption.  
+
+I will likely end up doing all of the above, but I'm going to go for KNN.cv and KNN LOOCV first.  I will have to do some data prep.  Deal with missing values and likely scale all features.  There are some features that are just words and those will have to be transformed into numbers.  
