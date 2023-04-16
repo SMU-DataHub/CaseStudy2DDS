@@ -22,6 +22,12 @@ library(tidyverse)
 library(gridExtra)
 library(readxl)
 ```
+
+https://github.com/SMU-DataHub/CaseStudy2DDS/blob/main/Presentation_Frito_Lay.mp4
+
+Link to my video
+
+
 # This is the analysis from Project_2a_reg_eval.Rmd from line 191 to line 371 - I'm going to take the overall analysis split into train and test sets and then move ahead with the RMSE analysis to see if I'm on the right track.  Not really sure I need to employed/unemployed splits but I did it anyway.  Below that, I create the train and test setwith the idea that I'm going to evaluate my lm() model with RMSE.  
 
 

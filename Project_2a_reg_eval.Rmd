@@ -22,6 +22,11 @@ library(tidyverse)
 library(gridExtra)
 library(readxl)
 ```
+https://github.com/SMU-DataHub/CaseStudy2DDS/blob/main/Presentation_Frito_Lay.mp4
+
+Link to my video
+
+
 ## This is the continuation of the analyses from Project_2.Rmd
 
 For Multiple Linear Regression (MLR), I asked ChatGPT how many predictor values you could have in an MLR model.  The answer was, as many as you want.  But, with some caveats.  They must all be numerical.  (in addition to the other SLR/MLR variable constraints).  It provided some guidance on how to cull down to only the most important features by using stepwise regression, regularization methods (Lasso and Ridge regression) or others to narrow down the model to the main features.  The analysis below was done by code written by ChatGPT and was stepwise regression and bi-directional.  

@@ -23,6 +23,12 @@ library(gridExtra)
 library(readxl)
 ```
 
+https://github.com/SMU-DataHub/CaseStudy2DDS/blob/main/Presentation_Frito_Lay.mp4
+
+Link to my video
+
+
+
 # Welsome Frito Lay - Attrition, trends, Monthly income predictor among other important tasks.
 ##Pinnacle Economics, LLC would like to thank Frito Lay for hiring our company to do this important work for you.  We are honored and excited about performing these tasks.  The first thing I want to say is that the data set CaseStudy2-data.csv required some preparation prior to thorough analysis.  I used Excel to load the data set into RStudio by parsing the comma separated values into individual columns.  My work is shown and commented below.  
 

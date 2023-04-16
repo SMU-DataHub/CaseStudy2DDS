@@ -357,6 +357,8 @@ display: none;
 </div>
 
 
+<p><a href="https://github.com/SMU-DataHub/CaseStudy2DDS/blob/main/Presentation_Frito_Lay.mp4" class="uri">https://github.com/SMU-DataHub/CaseStudy2DDS/blob/main/Presentation_Frito_Lay.mp4</a></p>
+<p>Link to my video</p>
 <div id="this-is-the-continuation-of-the-analyses-from-project_2.rmd" class="section level2">
 <h2>This is the continuation of the analyses from Project_2.Rmd</h2>
 <p>For Multiple Linear Regression (MLR), I asked ChatGPT how many
@@ -997,149 +999,149 @@ train_2 = Full_set_2[trainInices_2,]
 test_2 = Full_set_2[-trainInices_2,]</code></pre>
 <pre class="r"><code>summary(train_2)</code></pre>
 <pre><code>##        ID             Age          Attrition                BusinessTravel
-##  Min.   :  1.0   Min.   :18.00   Min.   :0.0000   Non-Travel       : 70   
-##  1st Qu.:225.8   1st Qu.:30.00   1st Qu.:1.0000   Travel_Frequently:123   
-##  Median :447.5   Median :35.00   Median :1.0000   Travel_Rarely    :459   
-##  Mean   :441.9   Mean   :36.87   Mean   :0.8374                           
-##  3rd Qu.:662.2   3rd Qu.:43.00   3rd Qu.:1.0000                           
+##  Min.   :  1.0   Min.   :18.00   Min.   :0.0000   Non-Travel       : 63   
+##  1st Qu.:214.8   1st Qu.:30.00   1st Qu.:1.0000   Travel_Frequently:120   
+##  Median :424.5   Median :36.00   Median :1.0000   Travel_Rarely    :469   
+##  Mean   :428.5   Mean   :36.89   Mean   :0.8344                           
+##  3rd Qu.:641.2   3rd Qu.:43.00   3rd Qu.:1.0000                           
 ##  Max.   :870.0   Max.   :60.00   Max.   :1.0000                           
 ##                                                                           
-##    DailyRate                       Department  DistanceFromHome   Education    
-##  Min.   : 111.0   Human Resources       : 28   Min.   : 1.000   Min.   :1.000  
-##  1st Qu.: 466.8   Research &amp; Development:418   1st Qu.: 2.000   1st Qu.:2.000  
-##  Median : 817.0   Sales                 :206   Median : 7.000   Median :3.000  
-##  Mean   : 807.8                                Mean   : 8.985   Mean   :2.891  
-##  3rd Qu.:1153.2                                3rd Qu.:13.000   3rd Qu.:4.000  
-##  Max.   :1499.0                                Max.   :29.000   Max.   :5.000  
-##                                                                                
+##    DailyRate                       Department  DistanceFromHome   Education  
+##  Min.   : 103.0   Human Resources       : 23   Min.   : 1.000   Min.   :1.0  
+##  1st Qu.: 487.5   Research &amp; Development:418   1st Qu.: 2.000   1st Qu.:2.0  
+##  Median : 850.5   Sales                 :211   Median : 7.000   Median :3.0  
+##  Mean   : 825.9                                Mean   : 9.497   Mean   :2.9  
+##  3rd Qu.:1180.0                                3rd Qu.:15.000   3rd Qu.:4.0  
+##  Max.   :1499.0                                Max.   :29.000   Max.   :5.0  
+##                                                                              
 ##           EducationField EmployeeNumber   EnvironmentSatisfaction
-##  Human Resources : 12    Min.   :   1.0   Min.   :1.000          
-##  Life Sciences   :263    1st Qu.: 461.8   1st Qu.:2.000          
-##  Marketing       : 80    Median :1004.5   Median :3.000          
-##  Medical         :199    Mean   :1009.0   Mean   :2.722          
-##  Other           : 37    3rd Qu.:1548.5   3rd Qu.:4.000          
-##  Technical Degree: 61    Max.   :2062.0   Max.   :4.000          
-##                                                                  
-##      Gender        HourlyRate     JobInvolvement     JobLevel    
-##  Min.   :0.000   Min.   : 30.00   Min.   :1.000   Min.   :1.000  
-##  1st Qu.:0.000   1st Qu.: 48.00   1st Qu.:2.000   1st Qu.:1.000  
-##  Median :0.000   Median : 66.00   Median :3.000   Median :2.000  
-##  Mean   :0.411   Mean   : 65.88   Mean   :2.729   Mean   :2.037  
-##  3rd Qu.:1.000   3rd Qu.: 83.00   3rd Qu.:3.000   3rd Qu.:3.000  
-##  Max.   :1.000   Max.   :100.00   Max.   :4.000   Max.   :5.000  
-##                                                                  
-##                       JobRole    JobSatisfaction MaritalStatus   
-##  Sales Executive          :152   Min.   :1.000   Min.   :0.0000  
-##  Research Scientist       :129   1st Qu.:2.000   1st Qu.:0.0000  
-##  Laboratory Technician    :114   Median :3.000   Median :0.0000  
-##  Manufacturing Director   : 60   Mean   :2.699   Mean   :0.4663  
-##  Healthcare Representative: 59   3rd Qu.:4.000   3rd Qu.:1.0000  
-##  Sales Representative     : 41   Max.   :4.000   Max.   :1.0000  
-##  (Other)                  : 97                                   
-##  MonthlyIncome    MonthlyRate    NumCompaniesWorked    OverTime     
-##  Min.   : 1081   Min.   : 2104   Min.   :0.000      Min.   :0.0000  
-##  1st Qu.: 2859   1st Qu.: 8316   1st Qu.:1.000      1st Qu.:0.0000  
-##  Median : 4922   Median :13882   Median :1.000      Median :0.0000  
-##  Mean   : 6384   Mean   :14268   Mean   :2.709      Mean   :0.2883  
-##  3rd Qu.: 8198   3rd Qu.:20322   3rd Qu.:4.000      3rd Qu.:1.0000  
-##  Max.   :19999   Max.   :26997   Max.   :9.000      Max.   :1.0000  
-##                                                                     
-##  PercentSalaryHike PerformanceRating RelationshipSatisfaction StockOptionLevel
-##  Min.   :11.0      Min.   :3.000     Min.   :1.000            Min.   :0.0000  
-##  1st Qu.:12.0      1st Qu.:3.000     1st Qu.:2.000            1st Qu.:0.0000  
-##  Median :14.0      Median :3.000     Median :3.000            Median :1.0000  
-##  Mean   :15.1      Mean   :3.143     Mean   :2.721            Mean   :0.7868  
-##  3rd Qu.:18.0      3rd Qu.:3.000     3rd Qu.:4.000            3rd Qu.:1.0000  
-##  Max.   :25.0      Max.   :4.000     Max.   :4.000            Max.   :3.0000  
-##                                                                               
-##  TotalWorkingYears TrainingTimesLastYear WorkLifeBalance YearsAtCompany  
-##  Min.   : 0.00     Min.   :0.000         Min.   :1.000   Min.   : 0.000  
-##  1st Qu.: 6.00     1st Qu.:2.000         1st Qu.:2.000   1st Qu.: 3.000  
-##  Median :10.00     Median :3.000         Median :3.000   Median : 5.000  
-##  Mean   :10.99     Mean   :2.808         Mean   :2.805   Mean   : 6.992  
-##  3rd Qu.:14.00     3rd Qu.:3.000         3rd Qu.:3.000   3rd Qu.:10.000  
-##  Max.   :40.00     Max.   :6.000         Max.   :4.000   Max.   :40.000  
-##                                                                          
-##  YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager
-##  Min.   : 0.000     Min.   : 0.000          Min.   : 0.000      
-##  1st Qu.: 2.000     1st Qu.: 0.000          1st Qu.: 2.000      
-##  Median : 3.000     Median : 1.000          Median : 3.000      
-##  Mean   : 4.213     Mean   : 2.227          Mean   : 4.158      
-##  3rd Qu.: 7.000     3rd Qu.: 3.000          3rd Qu.: 7.000      
-##  Max.   :18.000     Max.   :15.000          Max.   :17.000      
-## </code></pre>
-<pre class="r"><code>summary(test_2)</code></pre>
-<pre><code>##        ID             Age          Attrition               BusinessTravel
-##  Min.   :  4.0   Min.   :18.00   Min.   :0.000   Non-Travel       : 24   
-##  1st Qu.:206.5   1st Qu.:30.25   1st Qu.:1.000   Travel_Frequently: 35   
-##  Median :389.5   Median :35.50   Median :1.000   Travel_Rarely    :159   
-##  Mean   :416.4   Mean   :36.71   Mean   :0.844                           
-##  3rd Qu.:622.2   3rd Qu.:42.75   3rd Qu.:1.000                           
-##  Max.   :863.0   Max.   :60.00   Max.   :1.000                           
-##                                                                          
-##    DailyRate                       Department  DistanceFromHome   Education    
-##  Min.   : 103.0   Human Resources       :  7   Min.   : 1.0     Min.   :1.000  
-##  1st Qu.: 502.8   Research &amp; Development:144   1st Qu.: 3.0     1st Qu.:2.000  
-##  Median : 821.0   Sales                 : 67   Median : 8.0     Median :3.000  
-##  Mean   : 837.5                                Mean   :10.4     Mean   :2.931  
-##  3rd Qu.:1201.5                                3rd Qu.:17.0     3rd Qu.:4.000  
-##  Max.   :1498.0                                Max.   :29.0     Max.   :5.000  
-##                                                                                
-##           EducationField EmployeeNumber   EnvironmentSatisfaction
-##  Human Resources : 3     Min.   :  14.0   Min.   :1.000          
-##  Life Sciences   :95     1st Qu.: 600.5   1st Qu.:2.000          
-##  Marketing       :20     Median :1181.0   Median :3.000          
-##  Medical         :71     Mean   :1092.2   Mean   :2.638          
-##  Other           :15     3rd Qu.:1606.8   3rd Qu.:4.000          
-##  Technical Degree:14     Max.   :2064.0   Max.   :4.000          
+##  Human Resources : 10    Min.   :   1.0   Min.   :1.000          
+##  Life Sciences   :273    1st Qu.: 479.8   1st Qu.:2.000          
+##  Marketing       : 79    Median :1007.5   Median :3.000          
+##  Medical         :203    Mean   :1022.6   Mean   :2.678          
+##  Other           : 35    3rd Qu.:1577.8   3rd Qu.:4.000          
+##  Technical Degree: 52    Max.   :2064.0   Max.   :4.000          
 ##                                                                  
 ##      Gender         HourlyRate     JobInvolvement     JobLevel    
 ##  Min.   :0.0000   Min.   : 30.00   Min.   :1.000   Min.   :1.000  
 ##  1st Qu.:0.0000   1st Qu.: 48.00   1st Qu.:2.000   1st Qu.:1.000  
-##  Median :0.0000   Median : 64.00   Median :3.000   Median :2.000  
-##  Mean   :0.3945   Mean   : 64.82   Mean   :2.706   Mean   :2.046  
-##  3rd Qu.:1.0000   3rd Qu.: 80.00   3rd Qu.:3.000   3rd Qu.:2.000  
+##  Median :0.0000   Median : 66.00   Median :3.000   Median :2.000  
+##  Mean   :0.4264   Mean   : 65.52   Mean   :2.733   Mean   :2.041  
+##  3rd Qu.:1.0000   3rd Qu.: 83.00   3rd Qu.:3.000   3rd Qu.:3.000  
+##  Max.   :1.0000   Max.   :100.00   Max.   :4.000   Max.   :5.000  
+##                                                                   
+##                       JobRole    JobSatisfaction MaritalStatus   
+##  Sales Executive          :152   Min.   :1.000   Min.   :0.0000  
+##  Research Scientist       :131   1st Qu.:2.000   1st Qu.:0.0000  
+##  Laboratory Technician    :117   Median :3.000   Median :0.0000  
+##  Manufacturing Director   : 63   Mean   :2.701   Mean   :0.4755  
+##  Healthcare Representative: 48   3rd Qu.:4.000   3rd Qu.:1.0000  
+##  Manager                  : 47   Max.   :4.000   Max.   :1.0000  
+##  (Other)                  : 94                                   
+##  MonthlyIncome    MonthlyRate    NumCompaniesWorked    OverTime     
+##  Min.   : 1081   Min.   : 2094   Min.   :0.000      Min.   :0.0000  
+##  1st Qu.: 2833   1st Qu.: 7976   1st Qu.:1.000      1st Qu.:0.0000  
+##  Median : 4830   Median :13968   Median :2.000      Median :0.0000  
+##  Mean   : 6459   Mean   :14209   Mean   :2.788      Mean   :0.2991  
+##  3rd Qu.: 8526   3rd Qu.:20322   3rd Qu.:4.000      3rd Qu.:1.0000  
+##  Max.   :19999   Max.   :26997   Max.   :9.000      Max.   :1.0000  
+##                                                                     
+##  PercentSalaryHike PerformanceRating RelationshipSatisfaction StockOptionLevel
+##  Min.   :11.00     Min.   :3.000     Min.   :1.000            Min.   :0.0000  
+##  1st Qu.:12.00     1st Qu.:3.000     1st Qu.:2.000            1st Qu.:0.0000  
+##  Median :14.00     Median :3.000     Median :3.000            Median :1.0000  
+##  Mean   :15.17     Mean   :3.147     Mean   :2.741            Mean   :0.7822  
+##  3rd Qu.:18.00     3rd Qu.:3.000     3rd Qu.:4.000            3rd Qu.:1.0000  
+##  Max.   :25.00     Max.   :4.000     Max.   :4.000            Max.   :3.0000  
+##                                                                               
+##  TotalWorkingYears TrainingTimesLastYear WorkLifeBalance YearsAtCompany  
+##  Min.   : 0.00     Min.   :0.000         Min.   :1.000   Min.   : 0.000  
+##  1st Qu.: 6.00     1st Qu.:2.000         1st Qu.:2.000   1st Qu.: 2.000  
+##  Median :10.00     Median :3.000         Median :3.000   Median : 5.000  
+##  Mean   :11.16     Mean   :2.804         Mean   :2.775   Mean   : 6.906  
+##  3rd Qu.:15.00     3rd Qu.:3.000         3rd Qu.:3.000   3rd Qu.:10.000  
+##  Max.   :40.00     Max.   :6.000         Max.   :4.000   Max.   :40.000  
+##                                                                          
+##  YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager
+##  Min.   : 0.000     Min.   : 0.000          Min.   : 0.000      
+##  1st Qu.: 2.000     1st Qu.: 0.000          1st Qu.: 1.000      
+##  Median : 3.000     Median : 1.000          Median : 3.000      
+##  Mean   : 4.086     Mean   : 2.164          Mean   : 3.951      
+##  3rd Qu.: 7.000     3rd Qu.: 3.000          3rd Qu.: 7.000      
+##  Max.   :18.000     Max.   :15.000          Max.   :17.000      
+## </code></pre>
+<pre class="r"><code>summary(test_2)</code></pre>
+<pre><code>##        ID             Age          Attrition                BusinessTravel
+##  Min.   :  4.0   Min.   :18.00   Min.   :0.0000   Non-Travel       : 31   
+##  1st Qu.:229.2   1st Qu.:30.00   1st Qu.:1.0000   Travel_Frequently: 38   
+##  Median :481.0   Median :35.00   Median :1.0000   Travel_Rarely    :149   
+##  Mean   :456.4   Mean   :36.65   Mean   :0.8532                           
+##  3rd Qu.:680.0   3rd Qu.:43.00   3rd Qu.:1.0000                           
+##  Max.   :867.0   Max.   :59.00   Max.   :1.0000                           
+##                                                                           
+##    DailyRate                       Department  DistanceFromHome   Education    
+##  Min.   : 111.0   Human Resources       : 12   Min.   : 1.000   Min.   :1.000  
+##  1st Qu.: 465.0   Research &amp; Development:144   1st Qu.: 2.000   1st Qu.:2.000  
+##  Median : 777.5   Sales                 : 62   Median : 7.000   Median :3.000  
+##  Mean   : 783.2                                Mean   : 8.867   Mean   :2.904  
+##  3rd Qu.:1136.8                                3rd Qu.:14.000   3rd Qu.:4.000  
+##  Max.   :1488.0                                Max.   :29.000   Max.   :5.000  
+##                                                                                
+##           EducationField EmployeeNumber   EnvironmentSatisfaction
+##  Human Resources : 5     Min.   :  14.0   Min.   :1.000          
+##  Life Sciences   :85     1st Qu.: 477.2   1st Qu.:2.000          
+##  Marketing       :21     Median :1118.5   Median :3.000          
+##  Medical         :67     Mean   :1051.5   Mean   :2.771          
+##  Other           :17     3rd Qu.:1538.5   3rd Qu.:4.000          
+##  Technical Degree:23     Max.   :2026.0   Max.   :4.000          
+##                                                                  
+##      Gender         HourlyRate     JobInvolvement     JobLevel    
+##  Min.   :0.0000   Min.   : 30.00   Min.   :1.000   Min.   :1.000  
+##  1st Qu.:0.0000   1st Qu.: 50.25   1st Qu.:2.000   1st Qu.:1.000  
+##  Median :0.0000   Median : 66.00   Median :3.000   Median :2.000  
+##  Mean   :0.3486   Mean   : 65.89   Mean   :2.693   Mean   :2.032  
+##  3rd Qu.:1.0000   3rd Qu.: 84.00   3rd Qu.:3.000   3rd Qu.:3.000  
 ##  Max.   :1.0000   Max.   :100.00   Max.   :4.000   Max.   :5.000  
 ##                                                                   
 ##                       JobRole   JobSatisfaction MaritalStatus   
 ##  Sales Executive          :48   Min.   :1.000   Min.   :0.0000  
-##  Research Scientist       :43   1st Qu.:2.000   1st Qu.:0.0000  
-##  Laboratory Technician    :39   Median :3.000   Median :0.0000  
-##  Manufacturing Director   :27   Mean   :2.739   Mean   :0.4862  
-##  Healthcare Representative:17   3rd Qu.:4.000   3rd Qu.:1.0000  
+##  Research Scientist       :41   1st Qu.:2.000   1st Qu.:0.0000  
+##  Laboratory Technician    :36   Median :3.000   Median :0.0000  
+##  Healthcare Representative:28   Mean   :2.734   Mean   :0.4587  
+##  Manufacturing Director   :24   3rd Qu.:4.000   3rd Qu.:1.0000  
 ##  Research Director        :14   Max.   :4.000   Max.   :1.0000  
-##  (Other)                  :30                                   
+##  (Other)                  :27                                   
 ##  MonthlyIncome    MonthlyRate    NumCompaniesWorked    OverTime     
-##  Min.   : 1118   Min.   : 2094   Min.   :0.000      Min.   :0.0000  
-##  1st Qu.: 2792   1st Qu.: 7521   1st Qu.:1.000      1st Qu.:0.0000  
-##  Median : 5046   Median :15408   Median :2.000      Median :0.0000  
-##  Mean   : 6408   Mean   :14497   Mean   :2.784      Mean   :0.2936  
-##  3rd Qu.: 8017   3rd Qu.:21068   3rd Qu.:4.000      3rd Qu.:1.0000  
-##  Max.   :19859   Max.   :26933   Max.   :9.000      Max.   :1.0000  
+##  Min.   : 1118   Min.   : 2104   Min.   :0.000      Min.   :0.0000  
+##  1st Qu.: 2934   1st Qu.: 8325   1st Qu.:1.000      1st Qu.:0.0000  
+##  Median : 5271   Median :14606   Median :1.000      Median :0.0000  
+##  Mean   : 6184   Mean   :14674   Mean   :2.546      Mean   :0.2615  
+##  3rd Qu.: 7986   3rd Qu.:21387   3rd Qu.:4.000      3rd Qu.:1.0000  
+##  Max.   :19701   Max.   :26968   Max.   :9.000      Max.   :1.0000  
 ##                                                                     
 ##  PercentSalaryHike PerformanceRating RelationshipSatisfaction StockOptionLevel
-##  Min.   :11.0      Min.   :3.000     Min.   :1.000            Min.   :0.0000  
-##  1st Qu.:13.0      1st Qu.:3.000     1st Qu.:2.000            1st Qu.:0.0000  
-##  Median :14.0      Median :3.000     Median :3.000            Median :1.0000  
-##  Mean   :15.5      Mean   :3.179     Mean   :2.665            Mean   :0.7752  
-##  3rd Qu.:18.0      3rd Qu.:3.000     3rd Qu.:4.000            3rd Qu.:1.0000  
-##  Max.   :25.0      Max.   :4.000     Max.   :4.000            Max.   :3.0000  
+##  Min.   :11.0      Min.   :3.000     Min.   :1.000            Min.   :0.000   
+##  1st Qu.:12.0      1st Qu.:3.000     1st Qu.:2.000            1st Qu.:0.000   
+##  Median :14.0      Median :3.000     Median :3.000            Median :1.000   
+##  Mean   :15.3      Mean   :3.165     Mean   :2.606            Mean   :0.789   
+##  3rd Qu.:18.0      3rd Qu.:3.000     3rd Qu.:4.000            3rd Qu.:1.000   
+##  Max.   :25.0      Max.   :4.000     Max.   :4.000            Max.   :3.000   
 ##                                                                               
 ##  TotalWorkingYears TrainingTimesLastYear WorkLifeBalance YearsAtCompany  
 ##  Min.   : 0.00     Min.   :0.000         Min.   :1.000   Min.   : 0.000  
-##  1st Qu.: 6.00     1st Qu.:2.000         1st Qu.:2.000   1st Qu.: 3.000  
-##  Median :10.00     Median :3.000         Median :3.000   Median : 5.000  
-##  Mean   :11.24     Mean   :2.904         Mean   :2.711   Mean   : 6.872  
-##  3rd Qu.:15.00     3rd Qu.:3.750         3rd Qu.:3.000   3rd Qu.: 9.000  
-##  Max.   :35.00     Max.   :6.000         Max.   :4.000   Max.   :32.000  
+##  1st Qu.: 6.00     1st Qu.:2.000         1st Qu.:3.000   1st Qu.: 3.000  
+##  Median : 9.00     Median :3.000         Median :3.000   Median : 6.000  
+##  Mean   :10.73     Mean   :2.917         Mean   :2.803   Mean   : 7.128  
+##  3rd Qu.:13.00     3rd Qu.:3.000         3rd Qu.:3.000   3rd Qu.:10.000  
+##  Max.   :37.00     Max.   :6.000         Max.   :4.000   Max.   :33.000  
 ##                                                                          
 ##  YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager
-##  Min.   : 0.000     Min.   : 0.000          Min.   : 0.000      
-##  1st Qu.: 2.000     1st Qu.: 0.000          1st Qu.: 2.000      
-##  Median : 3.000     Median : 1.000          Median : 3.000      
-##  Mean   : 4.179     Mean   : 1.995          Mean   : 4.087      
-##  3rd Qu.: 7.000     3rd Qu.: 2.000          3rd Qu.: 7.000      
-##  Max.   :17.000     Max.   :15.000          Max.   :17.000      
+##  Min.   : 0.00      Min.   : 0.000          Min.   : 0.000      
+##  1st Qu.: 2.00      1st Qu.: 0.000          1st Qu.: 2.000      
+##  Median : 3.00      Median : 1.000          Median : 3.500      
+##  Mean   : 4.56      Mean   : 2.183          Mean   : 4.706      
+##  3rd Qu.: 7.00      3rd Qu.: 2.000          3rd Qu.: 7.750      
+##  Max.   :16.00      Max.   :15.000          Max.   :17.000      
 ## </code></pre>
 <pre class="r"><code>#View(train_2)
 #View(test_2)
@@ -1741,7 +1743,7 @@ library(car)</code></pre>
 ##     recode</code></pre>
 <pre class="r"><code>durbinWatsonTest(fit)</code></pre>
 <pre><code>##  lag Autocorrelation D-W Statistic p-value
-##    1      0.01114613      1.977531   0.742
+##    1      0.01114613      1.977531    0.78
 ##  Alternative hypothesis: rho != 0</code></pre>
 <p>durbinWatsonTest(fit) lag Autocorrelation D-W Statistic p-value 1
 0.01114613 1.977531 0.808 Alternative hypothesis: rho != 0</p>

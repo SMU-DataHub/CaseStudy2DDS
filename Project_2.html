@@ -357,6 +357,8 @@ display: none;
 </div>
 
 
+<p><a href="https://github.com/SMU-DataHub/CaseStudy2DDS/blob/main/Presentation_Frito_Lay.mp4" class="uri">https://github.com/SMU-DataHub/CaseStudy2DDS/blob/main/Presentation_Frito_Lay.mp4</a></p>
+<p>Link to my video</p>
 <div id="welsome-frito-lay---attrition-trends-monthly-income-predictor-among-other-important-tasks." class="section level1">
 <h1>Welsome Frito Lay - Attrition, trends, Monthly income predictor
 among other important tasks.</h1>
@@ -679,142 +681,134 @@ trainInices = sample(1:dim(Full_set)[1],round(splitPerc * dim(Full_set)[1]))
 train = Full_set[trainInices,]
 test = Full_set[-trainInices,]</code></pre>
 <pre class="r"><code>summary(train)</code></pre>
-<pre><code>##    Attrition     EmployeeCount     Gender          OverTime    
-##  Min.   :0.000   Min.   :1     Min.   :0.0000   Min.   :0.000  
-##  1st Qu.:1.000   1st Qu.:1     1st Qu.:0.0000   1st Qu.:0.000  
-##  Median :1.000   Median :1     Median :0.0000   Median :0.000  
-##  Mean   :0.839   Mean   :1     Mean   :0.4187   Mean   :0.296  
-##  3rd Qu.:1.000   3rd Qu.:1     3rd Qu.:1.0000   3rd Qu.:1.000  
-##  Max.   :1.000   Max.   :1     Max.   :1.0000   Max.   :1.000  
-##                                                                
-##        ID                Age              DailyRate         DistanceFromHome  
-##  Min.   :-1.72907   Min.   :-2.109438   Min.   :-1.755669   Min.   :-1.02487  
-##  1st Qu.:-0.91129   1st Qu.:-0.765043   1st Qu.:-0.863160   1st Qu.:-0.90197  
-##  Median :-0.04775   Median :-0.204878   Median :-0.005554   Median :-0.28747  
-##  Mean   :-0.03863   Mean   : 0.002863   Mean   :-0.007813   Mean   :-0.02509  
-##  3rd Qu.: 0.81976   3rd Qu.: 0.691385   3rd Qu.: 0.855170   3rd Qu.: 0.57283  
-##  Max.   : 1.72907   Max.   : 2.595944   Max.   : 1.704674   Max.   : 2.41632  
-##                                                                               
-##    Education        EmployeeNumber      EnvironmentSatisfaction
-##  Min.   :-1.85834   Min.   :-1.696181   Min.   :-1.547376      
-##  1st Qu.:-0.88086   1st Qu.:-0.873994   1st Qu.:-0.637770      
-##  Median : 0.09662   Median : 0.017639   Median : 0.271836      
-##  Mean   : 0.01117   Mean   :-0.002936   Mean   :-0.009974      
-##  3rd Qu.: 1.07411   3rd Qu.: 0.863388   3rd Qu.: 1.181443      
-##  Max.   : 2.05159   Max.   : 1.709964   Max.   : 1.181443      
-##                                                                
-##    HourlyRate        JobInvolvement        JobLevel        JobSatisfaction     
-##  Min.   :-1.769439   Min.   :-2.44871   Min.   :-0.95319   Min.   :-1.5335752  
-##  1st Qu.:-0.875126   1st Qu.:-1.02751   1st Qu.:-0.95319   1st Qu.:-0.6363254  
-##  Median :-0.005654   Median : 0.39369   Median :-0.03585   Median : 0.2609244  
-##  Mean   : 0.004786   Mean   :-0.02482   Mean   : 0.02324   Mean   :-0.0005441  
-##  3rd Qu.: 0.863818   3rd Qu.: 0.39369   3rd Qu.: 0.88149   3rd Qu.: 1.1581741  
-##  Max.   : 1.708448   Max.   : 1.81489   Max.   : 2.71616   Max.   : 1.1581741  
-##                                                                                
-##  MonthlyIncome       MonthlyRate        NumCompaniesWorked PercentSalaryHike 
-##  Min.   :-1.15477   Min.   :-1.720732   Min.   :-1.08219   Min.   :-1.14272  
-##  1st Qu.:-0.77164   1st Qu.:-0.862907   1st Qu.:-0.68543   1st Qu.:-0.87064  
-##  Median :-0.28433   Median :-0.035327   Median :-0.28867   Median :-0.32649  
-##  Mean   : 0.02672   Mean   : 0.005999   Mean   : 0.04601   Mean   :-0.03689  
-##  3rd Qu.: 0.48274   3rd Qu.: 0.896214   3rd Qu.: 0.50484   3rd Qu.: 0.48974  
-##  Max.   : 2.94772   Max.   : 1.782597   Max.   : 2.48862   Max.   : 2.66635  
-##                                                                              
-##  PerformanceRating  RelationshipSatisfaction StandardHours StockOptionLevel   
-##  Min.   :-0.42268   Min.   :-1.54822         Min.   : NA   Min.   :-0.913897  
-##  1st Qu.:-0.42268   1st Qu.:-0.64118         1st Qu.: NA   1st Qu.:-0.913897  
-##  Median :-0.42268   Median : 0.26586         Median : NA   Median : 0.251925  
-##  Mean   :-0.03386   Mean   : 0.03631         Mean   :NaN   Mean   :-0.001981  
-##  3rd Qu.:-0.42268   3rd Qu.: 1.17289         3rd Qu.: NA   3rd Qu.: 0.251925  
-##  Max.   : 2.36315   Max.   : 1.17289         Max.   : NA   Max.   : 2.583568  
-##                                              NA&#39;s   :652                      
-##  TotalWorkingYears  TrainingTimesLastYear WorkLifeBalance    
-##  Min.   :-1.47104   Min.   :-2.22540      Min.   :-2.502341  
-##  1st Qu.:-0.67249   1st Qu.:-0.65389      1st Qu.:-1.097801  
-##  Median :-0.14013   Median : 0.13186      Median : 0.306739  
-##  Mean   : 0.02562   Mean   : 0.01978      Mean   :-0.007775  
-##  3rd Qu.: 0.52533   3rd Qu.: 0.13186      3rd Qu.: 0.306739  
-##  Max.   : 3.85260   Max.   : 2.48912      Max.   : 1.711279  
-##                                                              
-##  YearsAtCompany     YearsInCurrentRole  YearsSinceLastPromotion
-##  Min.   :-1.15629   Min.   :-1.155326   Min.   :-0.68081       
-##  1st Qu.:-0.69956   1st Qu.:-0.605772   1st Qu.:-0.68081       
-##  Median :-0.32587   Median :-0.330996   Median :-0.36692       
-##  Mean   : 0.01292   Mean   : 0.001518   Mean   : 0.01629       
-##  3rd Qu.: 0.50455   3rd Qu.: 0.768112   3rd Qu.: 0.26085       
-##  Max.   : 5.48708   Max.   : 3.515880   Max.   : 4.02748       
-##                                                                
-##  YearsWithCurrManager
-##  Min.   :-1.15829    
-##  1st Qu.:-0.59876    
-##  Median :-0.31899    
-##  Mean   : 0.03328    
-##  3rd Qu.: 0.80006    
-##  Max.   : 3.59770    
-## </code></pre>
-<pre class="r"><code>summary(test)</code></pre>
 <pre><code>##    Attrition      EmployeeCount     Gender          OverTime     
 ##  Min.   :0.0000   Min.   :1     Min.   :0.0000   Min.   :0.0000  
 ##  1st Qu.:1.0000   1st Qu.:1     1st Qu.:0.0000   1st Qu.:0.0000  
 ##  Median :1.0000   Median :1     Median :0.0000   Median :0.0000  
-##  Mean   :0.8394   Mean   :1     Mean   :0.3716   Mean   :0.2706  
+##  Mean   :0.8298   Mean   :1     Mean   :0.4034   Mean   :0.2945  
 ##  3rd Qu.:1.0000   3rd Qu.:1     3rd Qu.:1.0000   3rd Qu.:1.0000  
 ##  Max.   :1.0000   Max.   :1     Max.   :1.0000   Max.   :1.0000  
 ##                                                                  
-##        ID               Age              DailyRate        DistanceFromHome  
-##  Min.   :-1.7171   Min.   :-1.997405   Min.   :-1.77561   Min.   :-1.02487  
-##  1st Qu.:-0.7153   1st Qu.:-0.765043   1st Qu.:-0.82452   1st Qu.:-0.90197  
-##  Median : 0.1751   Median :-0.204878   Median : 0.06799   Median :-0.28747  
-##  Mean   : 0.1155   Mean   :-0.008564   Mean   : 0.02337   Mean   : 0.07503  
-##  3rd Qu.: 0.9401   3rd Qu.: 0.691385   3rd Qu.: 0.90877   3rd Qu.: 0.94153  
-##  Max.   : 1.7171   Max.   : 2.371878   Max.   : 1.69719   Max.   : 2.41632  
-##                                                                             
+##        ID                 Age             DailyRate         DistanceFromHome   
+##  Min.   :-1.729067   Min.   :-2.10944   Min.   :-1.775614   Min.   :-1.024872  
+##  1st Qu.:-0.890400   1st Qu.:-0.76504   1st Qu.:-0.873756   1st Qu.:-0.901972  
+##  Median :-0.007959   Median :-0.20488   Median :-0.015526   Median :-0.287473  
+##  Mean   :-0.012781   Mean   : 0.00252   Mean   :-0.005003   Mean   : 0.003378  
+##  3rd Qu.: 0.862544   3rd Qu.: 0.69138   3rd Qu.: 0.906900   3rd Qu.: 0.695726  
+##  Max.   : 1.725087   Max.   : 2.59594   Max.   : 1.704674   Max.   : 2.416325  
+##                                                                                
 ##    Education        EmployeeNumber     EnvironmentSatisfaction
-##  Min.   :-1.85834   Min.   :-1.70114   Min.   :-1.54738       
-##  1st Qu.:-0.88086   1st Qu.:-0.92939   1st Qu.:-0.63777       
-##  Median : 0.09662   Median : 0.01516   Median : 0.27184       
-##  Mean   :-0.03341   Mean   : 0.00878   Mean   : 0.02983       
-##  3rd Qu.: 1.07411   3rd Qu.: 0.92581   3rd Qu.: 1.18144       
-##  Max.   : 2.05159   Max.   : 1.66697   Max.   : 1.18144       
+##  Min.   :-1.85834   Min.   :-1.70114   Min.   :-1.547376      
+##  1st Qu.:-0.88086   1st Qu.:-0.92070   1st Qu.:-0.637770      
+##  Median : 0.09662   Median : 0.03252   Median : 0.271836      
+##  Mean   : 0.02466   Mean   : 0.01047   Mean   :-0.001604      
+##  3rd Qu.: 1.07411   3rd Qu.: 0.92457   3rd Qu.: 1.181443      
+##  Max.   : 2.05159   Max.   : 1.70666   Max.   : 1.181443      
 ##                                                               
-##    HourlyRate       JobInvolvement        JobLevel        JobSatisfaction    
-##  Min.   :-1.76944   Min.   :-2.44871   Min.   :-0.95319   Min.   :-1.533575  
-##  1st Qu.:-0.91239   1st Qu.:-1.02751   1st Qu.:-0.95319   1st Qu.:-0.636325  
-##  Median : 0.01919   Median : 0.39369   Median :-0.03585   Median : 0.260924  
-##  Mean   :-0.01431   Mean   : 0.07424   Mean   :-0.06951   Mean   : 0.001627  
-##  3rd Qu.: 0.86382   3rd Qu.: 0.39369   3rd Qu.:-0.03585   3rd Qu.: 1.158174  
-##  Max.   : 1.70845   Max.   : 1.81489   Max.   : 2.71616   Max.   : 1.158174  
+##    HourlyRate        JobInvolvement        JobLevel        JobSatisfaction    
+##  Min.   :-1.769439   Min.   :-2.44871   Min.   :-0.95319   Min.   :-1.533575  
+##  1st Qu.:-0.875126   1st Qu.:-1.02751   1st Qu.:-0.95319   1st Qu.:-0.636325  
+##  Median : 0.019188   Median : 0.39369   Median :-0.03585   Median : 0.260924  
+##  Mean   : 0.001433   Mean   :-0.04444   Mean   :-0.02319   Mean   :-0.004673  
+##  3rd Qu.: 0.863818   3rd Qu.: 0.39369   3rd Qu.:-0.03585   3rd Qu.: 1.158174  
+##  Max.   : 1.708448   Max.   : 1.81489   Max.   : 2.71616   Max.   : 1.158174  
+##                                                                               
+##  MonthlyIncome       MonthlyRate        NumCompaniesWorked PercentSalaryHike 
+##  Min.   :-1.15477   Min.   :-1.720732   Min.   :-1.08219   Min.   :-1.14272  
+##  1st Qu.:-0.78485   1st Qu.:-0.867655   1st Qu.:-0.68543   1st Qu.:-0.87064  
+##  Median :-0.31891   Median :-0.042291   Median :-0.28867   Median :-0.32649  
+##  Mean   :-0.02294   Mean   :-0.006343   Mean   : 0.01985   Mean   :-0.02228  
+##  3rd Qu.: 0.27568   3rd Qu.: 0.849544   3rd Qu.: 0.50484   3rd Qu.: 0.76181  
+##  Max.   : 2.95990   Max.   : 1.782597   Max.   : 2.48862   Max.   : 2.66635  
 ##                                                                              
-##  MonthlyIncome       MonthlyRate       NumCompaniesWorked PercentSalaryHike
-##  Min.   :-1.08691   Min.   :-1.71933   Min.   :-1.0822    Min.   :-1.1427  
-##  1st Qu.:-0.77240   1st Qu.:-0.89277   1st Qu.:-0.6854    1st Qu.:-0.8706  
-##  Median :-0.36013   Median :-0.04173   Median :-0.6854    Median :-0.3265  
-##  Mean   :-0.07991   Mean   :-0.01794   Mean   :-0.1376    Mean   : 0.1103  
-##  3rd Qu.: 0.08363   3rd Qu.: 0.81532   3rd Qu.: 0.5048    3rd Qu.: 0.9659  
-##  Max.   : 2.95990   Max.   : 1.77359   Max.   : 2.4886    Max.   : 2.6663  
-##                                                                            
-##  PerformanceRating RelationshipSatisfaction StandardHours StockOptionLevel   
-##  Min.   :-0.4227   Min.   :-1.5482          Min.   : NA   Min.   :-0.913897  
-##  1st Qu.:-0.4227   1st Qu.:-1.3215          1st Qu.: NA   1st Qu.:-0.913897  
-##  Median :-0.4227   Median : 0.2659          Median : NA   Median : 0.251925  
-##  Mean   : 0.1013   Mean   :-0.1086          Mean   :NaN   Mean   : 0.005926  
-##  3rd Qu.:-0.4227   3rd Qu.: 1.1729          3rd Qu.: NA   3rd Qu.: 0.251925  
-##  Max.   : 2.3632   Max.   : 1.1729          Max.   : NA   Max.   : 2.583568  
-##                                             NA&#39;s   :218                      
+##  PerformanceRating  RelationshipSatisfaction StandardHours StockOptionLevel 
+##  Min.   :-0.42268   Min.   :-1.548217        Min.   : NA   Min.   :-0.9139  
+##  1st Qu.:-0.42268   1st Qu.:-0.641181        1st Qu.: NA   1st Qu.:-0.9139  
+##  Median :-0.42268   Median : 0.265856        Median : NA   Median : 0.2519  
+##  Mean   :-0.01677   Mean   :-0.005421        Mean   :NaN   Mean   :-0.0145  
+##  3rd Qu.:-0.42268   3rd Qu.: 1.172892        3rd Qu.: NA   3rd Qu.: 0.2519  
+##  Max.   : 2.36315   Max.   : 1.172892        Max.   : NA   Max.   : 2.5836  
+##                                              NA&#39;s   :652                    
 ##  TotalWorkingYears  TrainingTimesLastYear WorkLifeBalance    YearsAtCompany    
-##  Min.   :-1.33794   Min.   :-2.22540      Min.   :-2.50234   Min.   :-1.15629  
-##  1st Qu.:-0.67249   1st Qu.:-0.65389      1st Qu.:-1.09780   1st Qu.:-0.65804  
-##  Median :-0.27322   Median : 0.13186      Median : 0.30674   Median :-0.32587  
-##  Mean   :-0.07663   Mean   :-0.05917      Mean   : 0.02325   Mean   :-0.03865  
-##  3rd Qu.: 0.25915   3rd Qu.: 0.13186      3rd Qu.: 0.30674   3rd Qu.: 0.33847  
-##  Max.   : 3.18714   Max.   : 2.48912      Max.   : 1.71128   Max.   : 4.32449  
+##  Min.   :-1.47104   Min.   :-2.225396     Min.   :-2.50234   Min.   :-1.15629  
+##  1st Qu.:-0.67249   1st Qu.:-0.653891     1st Qu.:-1.09780   1st Qu.:-0.82412  
+##  Median :-0.14013   Median : 0.131862     Median : 0.30674   Median :-0.32587  
+##  Mean   :-0.02684   Mean   :-0.003114     Mean   :-0.02285   Mean   :-0.04159  
+##  3rd Qu.: 0.39224   3rd Qu.: 0.131862     3rd Qu.: 0.30674   3rd Qu.: 0.33847  
+##  Max.   : 3.85260   Max.   : 2.489120     Max.   : 1.71128   Max.   : 5.48708  
 ##                                                                                
 ##  YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager
 ##  Min.   :-1.15533   Min.   :-0.68081        Min.   :-1.15829    
-##  1st Qu.:-0.60577   1st Qu.:-0.68081        1st Qu.:-0.80858    
-##  Median :-0.33100   Median :-0.36692        Median :-0.59876    
-##  Mean   :-0.00454   Mean   :-0.04872        Mean   :-0.09955    
+##  1st Qu.:-0.60577   1st Qu.:-0.68081        1st Qu.:-0.59876    
+##  Median :-0.33100   Median :-0.36692        Median :-0.31899    
+##  Mean   :-0.03472   Mean   :-0.03137        Mean   :-0.03623    
 ##  3rd Qu.: 0.76811   3rd Qu.:-0.05304        3rd Qu.: 0.80006    
-##  Max.   : 3.79066   Max.   : 4.02748        Max.   : 2.75841    
+##  Max.   : 3.79066   Max.   : 4.02748        Max.   : 3.59770    
+## </code></pre>
+<pre class="r"><code>summary(test)</code></pre>
+<pre><code>##    Attrition     EmployeeCount     Gender          OverTime     
+##  Min.   :0.000   Min.   :1     Min.   :0.0000   Min.   :0.0000  
+##  1st Qu.:1.000   1st Qu.:1     1st Qu.:0.0000   1st Qu.:0.0000  
+##  Median :1.000   Median :1     Median :0.0000   Median :0.0000  
+##  Mean   :0.867   Mean   :1     Mean   :0.4174   Mean   :0.2752  
+##  3rd Qu.:1.000   3rd Qu.:1     3rd Qu.:1.0000   3rd Qu.:1.0000  
+##  Max.   :1.000   Max.   :1     Max.   :1.0000   Max.   :1.0000  
+##                                                                 
+##        ID                Age              DailyRate        DistanceFromHome 
+##  Min.   :-1.71713   Min.   :-2.109438   Min.   :-1.75567   Min.   :-1.0249  
+##  1st Qu.:-0.74515   1st Qu.:-0.765043   1st Qu.:-0.78151   1st Qu.:-0.9020  
+##  Median : 0.01990   Median :-0.204878   Median : 0.11037   Median :-0.2875  
+##  Mean   : 0.03822   Mean   :-0.007536   Mean   : 0.01496   Mean   :-0.0101  
+##  3rd Qu.: 0.85657   3rd Qu.: 0.579352   3rd Qu.: 0.81466   3rd Qu.: 0.5728  
+##  Max.   : 1.72907   Max.   : 2.147812   Max.   : 1.69470   Max.   : 2.4163  
+##                                                                             
+##    Education        EmployeeNumber     EnvironmentSatisfaction
+##  Min.   :-1.85834   Min.   :-1.68461   Min.   :-1.547376      
+##  1st Qu.:-0.88086   1st Qu.:-0.87275   1st Qu.:-0.637770      
+##  Median : 0.09662   Median :-0.03362   Median : 0.271836      
+##  Mean   :-0.07376   Mean   :-0.03131   Mean   : 0.004796      
+##  3rd Qu.: 1.07411   3rd Qu.: 0.83280   3rd Qu.: 1.181443      
+##  Max.   : 2.05159   Max.   : 1.70996   Max.   : 1.181443      
+##                                                               
+##    HourlyRate        JobInvolvement       JobLevel        JobSatisfaction   
+##  Min.   :-1.769439   Min.   :-2.4487   Min.   :-0.95319   Min.   :-1.53358  
+##  1st Qu.:-0.875126   1st Qu.:-1.0275   1st Qu.:-0.95319   1st Qu.:-0.63633  
+##  Median : 0.019188   Median : 0.3937   Median :-0.03585   Median : 0.26092  
+##  Mean   :-0.004286   Mean   : 0.1329   Mean   : 0.06935   Mean   : 0.01397  
+##  3rd Qu.: 0.851397   3rd Qu.: 0.3937   3rd Qu.: 0.88149   3rd Qu.: 1.15817  
+##  Max.   : 1.708448   Max.   : 1.8149   Max.   : 2.71616   Max.   : 1.15817  
+##                                                                             
+##  MonthlyIncome      MonthlyRate       NumCompaniesWorked PercentSalaryHike 
+##  Min.   :-1.1526   Min.   :-1.71468   Min.   :-1.08219   Min.   :-1.14272  
+##  1st Qu.:-0.7275   1st Qu.:-0.86695   1st Qu.:-0.68543   1st Qu.:-0.87064  
+##  Median :-0.3108   Median :-0.01648   Median :-0.68543   Median :-0.32649  
+##  Mean   : 0.0686   Mean   : 0.01897   Mean   :-0.05936   Mean   : 0.06665  
+##  3rd Qu.: 0.6923   3rd Qu.: 0.96508   3rd Qu.: 0.50484   3rd Qu.: 0.76181  
+##  Max.   : 2.8810   Max.   : 1.77359   Max.   : 2.48862   Max.   : 2.66635  
+##                                                                            
+##  PerformanceRating  RelationshipSatisfaction StandardHours StockOptionLevel  
+##  Min.   :-0.42268   Min.   :-1.54822         Min.   : NA   Min.   :-0.91390  
+##  1st Qu.:-0.42268   1st Qu.:-0.64118         1st Qu.: NA   1st Qu.:-0.91390  
+##  Median :-0.42268   Median : 0.26586         Median : NA   Median : 0.25192  
+##  Mean   : 0.05015   Mean   : 0.01621         Mean   :NaN   Mean   : 0.04336  
+##  3rd Qu.:-0.42268   3rd Qu.: 1.17289         3rd Qu.: NA   3rd Qu.: 0.25192  
+##  Max.   : 2.36315   Max.   : 1.17289         Max.   : NA   Max.   : 2.58357  
+##                                              NA&#39;s   :218                     
+##  TotalWorkingYears  TrainingTimesLastYear WorkLifeBalance    YearsAtCompany   
+##  Min.   :-1.47104   Min.   :-2.225396     Min.   :-2.50234   Min.   :-1.1563  
+##  1st Qu.:-0.67249   1st Qu.:-0.653891     1st Qu.: 0.30674   1st Qu.:-0.6580  
+##  Median :-0.14013   Median : 0.131862     Median : 0.30674   Median :-0.1598  
+##  Mean   : 0.08027   Mean   : 0.009313     Mean   : 0.06835   Mean   : 0.1244  
+##  3rd Qu.: 0.52533   3rd Qu.: 0.131862     3rd Qu.: 0.30674   3rd Qu.: 0.5046  
+##  Max.   : 3.32023   Max.   : 2.489120     Max.   : 1.71128   Max.   : 4.3245  
+##                                                                               
+##  YearsInCurrentRole YearsSinceLastPromotion YearsWithCurrManager
+##  Min.   :-1.15533   Min.   :-0.68081        Min.   :-1.1583     
+##  1st Qu.:-0.60577   1st Qu.:-0.68081        1st Qu.:-0.5988     
+##  Median :-0.05622   Median :-0.36692        Median :-0.3190     
+##  Mean   : 0.10386   Mean   : 0.09383        Mean   : 0.1084     
+##  3rd Qu.: 0.76811   3rd Qu.: 0.49626        3rd Qu.: 0.8001     
+##  Max.   : 3.51588   Max.   : 4.02748        Max.   : 3.5977     
 ## </code></pre>
 <pre class="r"><code>#View(train)
 #View(test)
@@ -922,36 +916,36 @@ classifications = knn(UnderSamp[,1:29],UnderSamp[1:29],UnderSamp[,1], prob = TRU
 table(classifications,UnderSamp[,1])</code></pre>
 <pre><code>##                
 ## classifications   0   1
-##               0 105  19
-##               1  35 121</code></pre>
+##               0 111  11
+##               1  29 129</code></pre>
 <pre class="r"><code>CM = confusionMatrix(table(classifications,UnderSamp[,1]))
 CM</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##                
 ## classifications   0   1
-##               0 105  19
-##               1  35 121
-##                                          
-##                Accuracy : 0.8071         
-##                  95% CI : (0.756, 0.8517)
-##     No Information Rate : 0.5            
-##     P-Value [Acc &gt; NIR] : &lt; 2e-16        
-##                                          
-##                   Kappa : 0.6143         
-##                                          
-##  Mcnemar&#39;s Test P-Value : 0.04123        
-##                                          
-##             Sensitivity : 0.7500         
-##             Specificity : 0.8643         
-##          Pos Pred Value : 0.8468         
-##          Neg Pred Value : 0.7756         
-##              Prevalence : 0.5000         
-##          Detection Rate : 0.3750         
-##    Detection Prevalence : 0.4429         
-##       Balanced Accuracy : 0.8071         
-##                                          
-##        &#39;Positive&#39; Class : 0              
+##               0 111  11
+##               1  29 129
+##                                           
+##                Accuracy : 0.8571          
+##                  95% CI : (0.8106, 0.8959)
+##     No Information Rate : 0.5             
+##     P-Value [Acc &gt; NIR] : &lt; 2e-16         
+##                                           
+##                   Kappa : 0.7143          
+##                                           
+##  Mcnemar&#39;s Test P-Value : 0.00719         
+##                                           
+##             Sensitivity : 0.7929          
+##             Specificity : 0.9214          
+##          Pos Pred Value : 0.9098          
+##          Neg Pred Value : 0.8165          
+##              Prevalence : 0.5000          
+##          Detection Rate : 0.3964          
+##    Detection Prevalence : 0.4357          
+##       Balanced Accuracy : 0.8571          
+##                                           
+##        &#39;Positive&#39; Class : 0               
 ## </code></pre>
 <p>table(classifications,UnderSamp[,1])</p>
 <p>classifications 0 1 0 102 13 1 38 127 CM =
@@ -1676,38 +1670,38 @@ OnlyNFNAOver = OnlyNFNA[sample(seq(1,300,1),256),]
 library(tidyr)
 OnlyNFNAOver1 &lt;- OnlyNFNAOver %&gt;% drop_na()
 str(OnlyNFNAOver1)</code></pre>
-<pre><code>## &#39;data.frame&#39;:    122 obs. of  28 variables:
+<pre><code>## &#39;data.frame&#39;:    116 obs. of  28 variables:
 ##  $ Attrition               : num  0 0 0 0 0 0 0 0 0 0 ...
-##  $ Gender                  : num  0 0 0 1 0 0 1 0 1 0 ...
-##  $ OverTime                : num  1 1 1 1 0 0 0 0 0 0 ...
-##  $ ID                      : num  1.347 -1.025 -0.686 1.259 1.614 ...
-##  $ Age                     : num  -0.0928 -1.2132 -0.4289 -0.653 -2.1094 ...
-##  $ DailyRate               : num  -1.23961 -1.17978 -0.00555 0.61023 -1.459 ...
-##  $ DistanceFromHome        : num  -0.0417 -0.902 0.5728 -1.0249 -0.7791 ...
-##  $ Education               : num  0.0966 0.0966 0.0966 0.0966 0.0966 ...
-##  $ EmployeeNumber          : num  -1.554 0.0383 -1.1654 0.498 -1.0331 ...
-##  $ EnvironmentSatisfaction : num  1.181 -1.547 0.272 1.181 0.272 ...
-##  $ HourlyRate              : num  0.665 -0.428 -0.378 -0.577 -0.577 ...
-##  $ JobInvolvement          : num  -1.028 0.394 0.394 0.394 0.394 ...
+##  $ Gender                  : num  0 0 0 0 0 1 0 1 0 0 ...
+##  $ OverTime                : num  0 1 1 1 1 0 0 0 1 0 ...
+##  $ ID                      : num  0.627 1.029 -0.408 -1.538 -1.363 ...
+##  $ Age                     : num  -0.9891 -0.765 0.8034 -2.1094 0.0192 ...
+##  $ DailyRate               : num  1.697 -0.876 -0.963 1.224 1.391 ...
+##  $ DistanceFromHome        : num  -1.025 -0.656 -1.025 -0.533 -0.902 ...
+##  $ Education               : num  0.0966 0.0966 -0.8809 0.0966 -0.8809 ...
+##  $ EmployeeNumber          : num  0.754 -0.853 1.26 -0.688 -1.696 ...
+##  $ EnvironmentSatisfaction : num  -1.547 0.272 0.272 -0.638 1.181 ...
+##  $ HourlyRate              : num  1.311 -1.273 1.659 0.168 1.311 ...
+##  $ JobInvolvement          : num  0.394 0.394 0.394 0.394 -1.028 ...
 ##  $ JobLevel                : num  -0.953 -0.953 -0.953 -0.953 -0.953 ...
-##  $ JobSatisfaction         : num  0.261 -1.534 1.158 -0.636 0.261 ...
-##  $ MonthlyIncome           : num  -0.653 -0.946 -0.86 -0.889 -1.081 ...
-##  $ MonthlyRate             : num  1.048 0.144 1.101 -0.845 1.534 ...
-##  $ NumCompaniesWorked      : num  -1.082 1.298 0.902 -0.685 -0.685 ...
-##  $ PercentSalaryHike       : num  0.49 -0.326 -0.599 -1.143 -0.599 ...
-##  $ PerformanceRating       : num  -0.423 -0.423 -0.423 -0.423 -0.423 ...
-##  $ RelationshipSatisfaction: num  -1.548 -0.641 0.266 -1.548 0.266 ...
-##  $ StockOptionLevel        : num  0.252 0.252 0.252 -0.914 -0.914 ...
-##  $ TotalWorkingYears       : num  -1.205 -0.672 -0.406 -1.072 -1.471 ...
-##  $ TrainingTimesLastYear   : num  -2.225 -0.654 -0.654 -0.654 -0.654 ...
-##  $ WorkLifeBalance         : num  -1.098 0.307 -2.502 1.711 0.307 ...
-##  $ YearsAtCompany          : num  -0.99 -0.658 -0.326 -0.658 -1.156 ...
-##  $ YearsInCurrentRole      : num  -1.1553 -0.6058 -0.0562 -0.6058 -1.1553 ...
-##  $ YearsSinceLastPromotion : num  -0.681 -0.367 -0.681 -0.053 -0.681 ...
-##  $ YearsWithCurrManager    : num  -1.1583 -0.5988 -0.0392 -0.5988 -1.1583 ...</code></pre>
+##  $ JobSatisfaction         : num  0.261 1.158 -0.636 -0.636 0.261 ...
+##  $ MonthlyIncome           : num  -0.757 -0.893 -0.88 -0.981 -0.935 ...
+##  $ MonthlyRate             : num  0.2 -1.533 -0.455 -0.882 -1.678 ...
+##  $ NumCompaniesWorked      : num  0.108 2.489 -0.685 -0.685 1.298 ...
+##  $ PercentSalaryHike       : num  -0.0544 2.1222 -0.8706 -0.3265 -0.0544 ...
+##  $ PerformanceRating       : num  -0.423 2.363 -0.423 -0.423 -0.423 ...
+##  $ RelationshipSatisfaction: num  1.173 0.266 0.266 1.173 -0.641 ...
+##  $ StockOptionLevel        : num  0.252 -0.914 2.584 -0.914 -0.914 ...
+##  $ TotalWorkingYears       : num  -0.806 -1.072 -0.672 -1.471 -0.539 ...
+##  $ TrainingTimesLastYear   : num  0.132 0.918 -0.654 0.132 0.132 ...
+##  $ WorkLifeBalance         : num  1.711 0.307 -1.098 0.307 0.307 ...
+##  $ YearsAtCompany          : num  -0.658 -0.99 -0.326 -1.156 -1.156 ...
+##  $ YearsInCurrentRole      : num  -0.606 -1.155 -0.331 -1.155 -1.155 ...
+##  $ YearsSinceLastPromotion : num  -0.367 -0.681 -0.053 -0.681 -0.681 ...
+##  $ YearsWithCurrManager    : num  -0.599 -1.158 -0.319 -1.158 -1.158 ...</code></pre>
 <pre class="r"><code>OverSamp1 = rbind(KNN_ALL_standardize[1:300,] %&gt;% filter(Attrition == &quot;1&quot;), OnlyNFNAOver1) #This filters to the remaining/current employees
 dim(OverSamp1)</code></pre>
-<pre><code>## [1] 378  28</code></pre>
+<pre><code>## [1] 372  28</code></pre>
 <pre class="r"><code>#View(OverSamp1)
 
 classifications = knn(OverSamp1[,1:28],OverSamp1[1:28],OverSamp1[,1], prob = TRUE, k = 5)
@@ -1715,34 +1709,34 @@ classifications = knn(OverSamp1[,1:28],OverSamp1[1:28],OverSamp1[,1], prob = TRU
 table(classifications,OverSamp1[,1])</code></pre>
 <pre><code>##                
 ## classifications   0   1
-##               0  80   4
-##               1  42 252</code></pre>
+##               0  71   1
+##               1  45 255</code></pre>
 <pre class="r"><code>CM = confusionMatrix(table(classifications,OverSamp1[,1]))
 CM</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##                
 ## classifications   0   1
-##               0  80   4
-##               1  42 252
+##               0  71   1
+##               1  45 255
 ##                                          
-##                Accuracy : 0.8783         
-##                  95% CI : (0.841, 0.9095)
-##     No Information Rate : 0.6772         
+##                Accuracy : 0.8763         
+##                  95% CI : (0.8385, 0.908)
+##     No Information Rate : 0.6882         
 ##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16      
 ##                                          
-##                   Kappa : 0.6969         
+##                   Kappa : 0.6785         
 ##                                          
-##  Mcnemar&#39;s Test P-Value : 4.888e-08      
+##  Mcnemar&#39;s Test P-Value : 2.298e-10      
 ##                                          
-##             Sensitivity : 0.6557         
-##             Specificity : 0.9844         
-##          Pos Pred Value : 0.9524         
-##          Neg Pred Value : 0.8571         
-##              Prevalence : 0.3228         
-##          Detection Rate : 0.2116         
-##    Detection Prevalence : 0.2222         
-##       Balanced Accuracy : 0.8201         
+##             Sensitivity : 0.6121         
+##             Specificity : 0.9961         
+##          Pos Pred Value : 0.9861         
+##          Neg Pred Value : 0.8500         
+##              Prevalence : 0.3118         
+##          Detection Rate : 0.1909         
+##    Detection Prevalence : 0.1935         
+##       Balanced Accuracy : 0.8041         
 ##                                          
 ##        &#39;Positive&#39; Class : 0              
 ## </code></pre>
