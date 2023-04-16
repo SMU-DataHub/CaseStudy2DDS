@@ -1,0 +1,73 @@
+---
+title: "Old Faithful Initial"
+author: "Bivin"
+date: "4/4/2019"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(dev = c('pdf', 'png'), 
+        fig.align = 'center', fig.height = 5, fig.width = 8.5, 
+        pdf.options(encoding = "ISOLatin9.enc")) 
+
+library(class)
+library(caret)
+library(e1071)
+library(dplyr)
+library(jsonlite)
+library(ggplot2)
+library(ggthemes)
+library(tidyverse)
+library(gridExtra)
+library(shiny)
+library(rsconnect)
+```
+
+```{r echo = FALSE}
+
+library(shiny)
+
+rsconnect::setAccountInfo(name='ctg-smu-data', 
+    token='D643012A8269267C1D1BCDC1BC0BD0E3', 
+    secret='h01L+30S72t/0J37qn1pDUFO9Do0aRQKFJpV86MN')
+shinyApp(
+  ui = tagList(
+    shinythemes::themeSelector(),
+    navbarPage(
+      theme = "cyborg",  # <--- To use a theme, uncomment this
+      "shinythemes",
+        sidebarPanel(
+          sliderInput("slider", "Job Involvement:", 1, 4, 1),
+          sliderInput("slider", "Job Satisfaction:", 1, 4, 1),
+          sliderInput("slider", "OverTime:", 0, 1, 0),
+          sliderInput("slider", "Stock Option Level:", 0, 3, 1)),
+        mainPanel(
+          tabsetPanel(
+            h4("Attrition or Employed"),
+              verbatimTextOutput("txtout"),
+              h1("Header 1"),
+              h2("Header 2"),
+              h3("Header 3"),
+              h4("Header 4"),
+              h5("Header 5")
+            ),
+          )
+        )
+      ),
+    
+  
+  server = function(input, output) {
+    output$txtout <- renderText({
+      paste(input$txt, input$slider, format(input$date), sep = ", ")
+    })
+    output$table <- renderTable({
+      head(cars, 4)
+    })
+  }
+)
+
+shinyApp(ui, server)
+
+```

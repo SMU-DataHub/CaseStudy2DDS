@@ -1,0 +1,985 @@
+---
+title: "SLR and MLR"
+author: "Todd Garner"
+date: "2023-04-08"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+library(class)
+library(caret)
+library(e1071)
+library(dplyr)
+library(jsonlite)
+library(ggplot2)
+library(ggthemes)
+library(tidyverse)
+library(gridExtra)
+library(readxl)
+```
+## This is the continuation of the analyses from Project_2.Rmd
+
+For Multiple Linear Regression (MLR), I asked ChatGPT how many predictor values you could have in an MLR model.  The answer was, as many as you want.  But, with some caveats.  They must all be numerical.  (in addition to the other SLR/MLR variable constraints).  It provided some guidance on how to cull down to only the most important features by using stepwise regression, regularization methods (Lasso and Ridge regression) or others to narrow down the model to the main features.  The analysis below was done by code written by ChatGPT and was stepwise regression and bi-directional.  
+
+I performed a number of analyses using examples provided by ChatGPT that I have deleted.  
+
+```{r}
+CS2_2 = readxl::read_excel(file.choose())
+#View(CS2_2)
+```
+```{r}
+employed <- CS2_2 %>% filter(Attrition == "No")
+#View(employed)
+employed <- CS2_2 %>% filter(Attrition == "No")
+#View(employed)
+unemployed <- CS2_2 %>% filter(Attrition == "Yes")
+#View(unemployed)
+tenure1 <- max(CS2_2$YearsAtCompany)
+#tenure1
+
+hist(unemployed$Age)
+hist(unemployed$Age)
+hist(unemployed$YearsAtCompany)
+hist(unemployed$Age, main = "Not Working and Age")
+hist(unemployed$YearsAtCompany, main = "Not working and Years at the Company")
+hist(unemployed$Age, main = "Not Working and Age")
+hist(unemployed$YearsAtCompany, main = "Not working and Years at the Company", xlab = "Age", ylab = "Number of employees lost")
+hist(unemployed$Age, main = "Age when employment ended", xlab = "Age", ylab = "Number of employees lost")
+hist(unemployed$YearsAtCompany, main = "Years at the Company when employment ended", xlab = "Number of Years at the Company", ylab = "Number of employees lost")
+summary(unemployed$Age)
+summary(unemployed$YearsAtCompany)
+t.test(unemployed$Age)
+t.test(unemployed$YearsAtCompany)
+```
+```{r}
+hist(employed$Age, main = "Age when employment ended", xlab = "Age", ylab = "Number of employees remaining")
+hist(employed$YearsAtCompany, main = "Years at the Company when this data was taken", xlab = "Number of Years at the Company", ylab = "Number of employees lost")
+summary(employed$Age)
+summary(employed$YearsAtCompany)
+hist(employed$Age, main = "Age when data was recorded", xlab = "Age", ylab = "Number of employees remaining")
+hist(employed$YearsAtCompany, main = "Years at the Company when this data was recorded", xlab = "Number of Years at the Company", ylab = "Number of employees lost")
+summary(employed$Age)
+summary(employed$YearsAtCompany)
+hist(employed$Age, main = "Age when data was recorded", xlab = "Age", ylab = "Number of employees remaining")
+hist(employed$YearsAtCompany, main = "Years at the Company when this data was recorded", xlab = "Number of Years at the Company", ylab = "Number of employees remaining")
+summary(employed$Age)
+summary(employed$YearsAtCompany)
+t.test(employed$Age)
+t.test(employed$YearsAtCompany)
+```
+We have three useful data sets.  CS2_2 - all data, employed - those employees still working at Frito Lay, unemployed - those employees that have left the company.  Unemployed could include fired, resigned, died, retired.  I can't think of any other reasons, but I don't think that's relevant.  
+
+I plotted all of the histograms and got the summary() for the unemployed data set with with each variable on the X axis and the count on the Y axis.  Those were saved as PDF's.  A few were notable but we need more data analysis.  
+
+
+
+
+```{r}
+KNN_2 <- CS2_2
+View(KNN_2)
+```
+Now we have a new data.frame with all 870 observations.  Perhaps we should deal with missing values.  Amazingly, there appear to be no missing values.  So, there are a few columns that have binary values.  We can change those to 0 and 1.  All employees are/were over 18.  That column adds no value so we should drop it.  There are 5 columns with multiple characters in categories.  For now, I'm going to drop those columns out of the data.frame.  
+
+```{r}
+summary(KNN_2)
+sum(is.na(KNN_2))
+
+
+#convert binary columns to 1s and 0s. 
+KNN_2$Attrition <- str_replace(KNN_2$Attrition,"No", "1")
+KNN_2$Attrition <- str_replace(KNN_2$Attrition,"Yes", "0")
+#KNN_2$Attrition
+KNN_2$Gender <- str_replace(KNN_2$Gender,"Female", "1")
+KNN_2$Gender <- str_replace(KNN_2$Gender,"Male", "0")
+#KNN_2$Gender
+KNN_2$OverTime <- str_replace(KNN_2$OverTime,"Yes", "1")
+KNN_2$OverTime <- str_replace(KNN_2$OverTime,"No", "0")
+#KNN_2$OverTime
+KNN_2$MaritalStatus <- str_replace(KNN_2$MaritalStatus,"Single", "0")
+KNN_2$MaritalStatus <- str_replace(KNN_2$MaritalStatus,"Divorced", "0")
+KNN_2$MaritalStatus <- str_replace(KNN_2$MaritalStatus,"Married", "1")
+#KNN_2$MaritalStatus
+
+#[NOTE: THIS IS WHERE I NEED TO FACTORIZE THESE PREDICTORS AND KEEP THEM IN THE MODEL.]  
+#Instead of removing them, I need to factorize each of these predictors:
+#View(KNN_2)
+KNN_2$BusinessTravel <- factor(KNN_2$BusinessTravel)
+KNN_2$Department <- factor(KNN_2$Department)
+KNN_2$EducationField <- factor(KNN_2$EducationField)
+KNN_2$JobRole <- factor(KNN_2$JobRole)
+#KNN_2$Attrition <- factor(KNN_2$Attrition)
+#KNN_2$Gender <- factor(KNN_2$Gender)
+#KNN_2$OverTime <- factor(KNN_2$OverTime)
+#KNN_2$MaritalStatus <- factor(KNN_2$MaritalStatus)
+
+#View(KNN_2)
+summary(KNN_2)
+
+
+
+#Remove the BusinessTravel, Department, EducationField, JobRole, MaritalStatus columns. 
+#KNN_2[ , c('BusinessTravel', 'Department', 'EducationField', 'JobRole', 'MaritalStatus')] <- list(NULL)
+#View(KNN_2)
+KNN_2[ , c('Over18', 'EmployeeCount', 'StandardHours')] <- list(NULL)
+#View(KNN_2)
+summary(KNN_2)
+```
+We need to convert all character columns to numeric
+```{r}
+KNN_2$Attrition <- as.numeric(KNN_2$Attrition)
+KNN_2$Gender <- as.numeric(KNN_2$Gender)
+KNN_2$OverTime <- as.numeric(KNN_2$OverTime)
+KNN_2$MaritalStatus <- as.numeric(KNN_2$MaritalStatus)
+
+summary(KNN_2)
+str(KNN_2)
+```
+All columns are numeric or factors.  R will substitute factors with dummy variables (per ChatGPT).  Now, we MAY need to scale some columns, but I'm going to attempt to run the lm() without scaling to aid in interpretability. 
+
+
+```{r}
+KNN_2$Attrition <- as.numeric(KNN_2$Attrition)
+KNN_2$Gender <- as.numeric(KNN_2$Gender)
+KNN_2$OverTime <- as.numeric(KNN_2$OverTime)
+summary(KNN_2)
+str(KNN_2)
+```
+
+Now the KNN_2 data.frame is ready for analysis.    
+```{r}
+splitPerc = .75
+Full_set_2 = KNN_2 %>% filter(Attrition == "1" | Attrition == "0")
+trainInices_2 = sample(1:dim(Full_set_2)[1],round(splitPerc * dim(Full_set_2)[1]))
+train_2 = Full_set_2[trainInices_2,]
+test_2 = Full_set_2[-trainInices_2,]
+```
+
+```{r}
+summary(train_2)
+summary(test_2)
+#View(train_2)
+#View(test_2)
+dim(train_2$Attrition)
+Only1_2 = train_2 %>% filter(Attrition == "1")
+#Only1_2
+```
+Now we have a train & test set we can set up the KNN analysis.  
+From here, everything is different as we will be using lm() multiple linear regression.  
+
+
+
+
+# MLR - the 7 key requirements:
+1. The relationship between the independent and
+dependent variables is linear.
+2. The distribution of the response for fixed values of
+the explanatory variables is normal.
+3. The distribution of the residuals is normal.
+4. The normal distributions of the response should have
+constant variance (standard deviation) for fixed
+values of the explanatory variables.
+5. The normal distributions of the residuals should have
+constant variance (standard deviation) for fixed
+values of the explanatory variables.
+6. Explanatory variables are independent of one
+another. (No multicollinearity).
+7. Observations are independent of one another.
+
+## Note, the following analyses have NOT been scaled at all.  The multi-level predictors were converted into factors and R took care of assigning a dummy variable and handling the importance of each predictor level.  All other predictors were transformed to numerical variables.  
+
+## An excellent way to see a step-by-step example of bidirectional stepwise regression (also known as stepwise regression with both forward selection and backward elimination) is to follow a tutorial or example using a popular programming language like R or Python.
+
+I have used this method to attempt to cull the number of variables down to a reasonable size.  Given the outcome, I'm not sure I've accomplished that.  So, I'll work another method.  
+
+## Install and load the 'MASS' package, which provides the 'stepAIC()' function for stepwise regression:
+```{r}
+library(MASS)
+
+
+
+full_model <- lm(Attrition ~ ., data = KNN_2)
+#Perform bidirectional stepwise regression using the 'stepAIC()' function:
+
+stepwise_model <- stepAIC(full_model, direction = "both", trace = FALSE)
+#The 'direction' argument set to "both" indicates that the stepwise regression should perform bidirectional elimination, and 'trace = #TRUE' will output the step-by-step process of adding or removing variables.
+
+#Examine the final selected model:
+summary(stepwise_model)
+#This will give you a summary of the final stepwise regression model, including the selected predictor variables and their coefficients.
+```
+Call:
+lm(formula = Attrition ~ Age + BusinessTravel + DistanceFromHome + 
+    EnvironmentSatisfaction + JobInvolvement + JobRole + JobSatisfaction + 
+    NumCompaniesWorked + OverTime + RelationshipSatisfaction + 
+    StockOptionLevel + TotalWorkingYears + TrainingTimesLastYear + 
+    WorkLifeBalance + YearsInCurrentRole + YearsSinceLastPromotion, 
+    data = KNN_2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.11908 -0.07809  0.07561  0.20563  0.56242 
+
+Coefficients:
+                                 Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                      0.199726   0.108789   1.836 0.066722 .  
+Age                              0.003527   0.001650   2.138 0.032828 *  
+BusinessTravelTravel_Frequently -0.110596   0.042376  -2.610 0.009218 ** 
+BusinessTravelTravel_Rarely     -0.049133   0.035838  -1.371 0.170745    
+DistanceFromHome                -0.004050   0.001353  -2.994 0.002830 ** 
+EnvironmentSatisfaction          0.027690   0.010010   2.766 0.005796 ** 
+JobInvolvement                   0.085977   0.015671   5.486 5.43e-08 ***
+JobRoleHuman Resources          -0.086259   0.073548  -1.173 0.241197    
+JobRoleLaboratory Technician    -0.058447   0.046718  -1.251 0.211260    
+JobRoleManager                  -0.036104   0.062160  -0.581 0.561511    
+JobRoleManufacturing Director    0.083390   0.050880   1.639 0.101595    
+JobRoleResearch Director         0.049457   0.060349   0.820 0.412723    
+JobRoleResearch Scientist       -0.011860   0.045790  -0.259 0.795692    
+JobRoleSales Executive          -0.029922   0.043658  -0.685 0.493299    
+JobRoleSales Representative     -0.249225   0.060695  -4.106 4.41e-05 ***
+JobSatisfaction                  0.042749   0.009865   4.333 1.65e-05 ***
+NumCompaniesWorked              -0.020300   0.004793  -4.236 2.53e-05 ***
+OverTime                        -0.209637   0.024320  -8.620  < 2e-16 ***
+RelationshipSatisfaction         0.022220   0.009941   2.235 0.025659 *  
+StockOptionLevel                 0.048123   0.012835   3.749 0.000189 ***
+TotalWorkingYears                0.005517   0.002713   2.033 0.042326 *  
+TrainingTimesLastYear            0.017675   0.008670   2.039 0.041784 *  
+WorkLifeBalance                  0.040785   0.015463   2.638 0.008504 ** 
+YearsInCurrentRole               0.007924   0.003972   1.995 0.046384 *  
+YearsSinceLastPromotion         -0.015591   0.004321  -3.609 0.000326 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3195 on 845 degrees of freedom
+Multiple R-squared:  0.2658,	Adjusted R-squared:  0.245 
+F-statistic: 12.75 on 24 and 845 DF,  p-value: < 2.2e-16
+
+### Referring to the signficance codes, these are the top contributors 1s - highly, 2s - high, 3s almost high:
+
+1	JobInvolvement                   0.085977   0.015671   5.486 5.43e-08 ***								
+1	JobRoleSales Representative     -0.249225   0.060695  -4.106 4.41e-05 ***								
+1	JobSatisfaction                  0.042749   0.009865   4.333 1.65e-05 ***								
+1	NumCompaniesWorked              -0.020300   0.004793  -4.236 2.53e-05 ***								
+1	OverTime                        -0.209637   0.024320  -8.620  < 2e-16 ***								
+1	StockOptionLevel                 0.048123   0.012835   3.749 0.000189 ***								
+1	YearsSinceLastPromotion         -0.015591   0.004321  -3.609 0.000326 ***								
+2	BusinessTravelTravel_Frequently -0.110596   0.042376  -2.610 0.009218 ** 								
+2	DistanceFromHome                -0.004050   0.001353  -2.994 0.002830 ** 								
+2	EnvironmentSatisfaction          0.027690   0.010010   2.766 0.005796 ** 								
+2	WorkLifeBalance                  0.040785   0.015463   2.638 0.008504 ** 								
+3	Age                              0.003527   0.001650   2.138 0.032828 *  								
+3	RelationshipSatisfaction         0.022220   0.009941   2.235 0.025659 *  								
+3	TotalWorkingYears                0.005517   0.002713   2.033 0.042326 *  								
+3	TrainingTimesLastYear            0.017675   0.008670   2.039 0.041784 *  								
+3	YearsInCurrentRole               0.007924   0.003972   1.995 0.046384 *  								
+
+
+
+## Linear Regression Model 2 - 
+
+I'm going to run the same analysis using a standard multiple linear regression model as we've seen before.  
+
+```{r}
+fit = lm(Attrition ~ ., data = KNN_2)
+summary(fit)
+```
+Call:
+lm(formula = Attrition ~ ., data = KNN_2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.10640 -0.08117  0.07610  0.20307  0.52952 
+
+Coefficients:
+                                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                       1.867e-01  2.317e-01   0.806 0.420452    
+ID                               -1.405e-05  4.481e-05  -0.314 0.753853    
+Age                               3.255e-03  1.709e-03   1.904 0.057283 .  
+BusinessTravelTravel_Frequently  -1.045e-01  4.293e-02  -2.434 0.015136 *  
+BusinessTravelTravel_Rarely      -4.606e-02  3.658e-02  -1.259 0.208315    
+DailyRate                         2.365e-05  2.772e-05   0.853 0.393814    
+DepartmentResearch & Development -1.251e-01  1.446e-01  -0.865 0.387381    
+DepartmentSales                  -1.443e-01  1.480e-01  -0.975 0.329698    
+DistanceFromHome                 -4.152e-03  1.385e-03  -2.998 0.002796 ** 
+Education                         4.906e-03  1.129e-02   0.434 0.664075    
+EducationFieldLife Sciences       2.115e-01  1.119e-01   1.890 0.059111 .  
+EducationFieldMarketing           2.035e-01  1.187e-01   1.715 0.086707 .  
+EducationFieldMedical             2.182e-01  1.121e-01   1.947 0.051893 .  
+EducationFieldOther               2.106e-01  1.197e-01   1.760 0.078833 .  
+EducationFieldTechnical Degree    1.389e-01  1.166e-01   1.191 0.234078    
+EmployeeNumber                    1.446e-05  1.848e-05   0.782 0.434197    
+EnvironmentSatisfaction           2.798e-02  1.017e-02   2.750 0.006090 ** 
+Gender                            1.485e-02  2.255e-02   0.659 0.510376    
+HourlyRate                       -6.991e-04  5.530e-04  -1.264 0.206547    
+JobInvolvement                    8.384e-02  1.590e-02   5.273 1.71e-07 ***
+JobLevel                          1.792e-02  3.886e-02   0.461 0.644897    
+JobRoleHuman Resources           -1.398e-01  1.562e-01  -0.895 0.371028    
+JobRoleLaboratory Technician     -7.153e-02  5.234e-02  -1.367 0.172103    
+JobRoleManager                    1.556e-02  9.718e-02   0.160 0.872858    
+JobRoleManufacturing Director     7.776e-02  5.145e-02   1.511 0.131072    
+JobRoleResearch Director          7.837e-02  7.932e-02   0.988 0.323423    
+JobRoleResearch Scientist        -1.642e-02  5.192e-02  -0.316 0.751903    
+JobRoleSales Executive           -1.638e-02  1.088e-01  -0.151 0.880351    
+JobRoleSales Representative      -2.343e-01  1.188e-01  -1.973 0.048787 *  
+JobSatisfaction                   4.196e-02  1.003e-02   4.184 3.17e-05 ***
+MaritalStatus                     1.429e-02  2.292e-02   0.623 0.533150    
+MonthlyIncome                    -8.333e-06  1.059e-05  -0.787 0.431422    
+MonthlyRate                       9.383e-07  1.565e-06   0.599 0.549032    
+NumCompaniesWorked               -2.145e-02  5.081e-03  -4.222 2.69e-05 ***
+OverTime                         -2.105e-01  2.453e-02  -8.578  < 2e-16 ***
+PercentSalaryHike                -1.759e-03  4.810e-03  -0.366 0.714755    
+PerformanceRating                -1.463e-02  4.915e-02  -0.298 0.766033    
+RelationshipSatisfaction          2.363e-02  1.010e-02   2.338 0.019606 *  
+StockOptionLevel                  4.783e-02  1.329e-02   3.599 0.000339 ***
+TotalWorkingYears                 6.777e-03  3.370e-03   2.011 0.044672 *  
+TrainingTimesLastYear             1.848e-02  8.826e-03   2.094 0.036591 *  
+WorkLifeBalance                   4.159e-02  1.561e-02   2.664 0.007870 ** 
+YearsAtCompany                   -4.469e-03  4.153e-03  -1.076 0.282172    
+YearsInCurrentRole                8.308e-03  5.186e-03   1.602 0.109536    
+YearsSinceLastPromotion          -1.481e-02  4.633e-03  -3.197 0.001440 ** 
+YearsWithCurrManager              5.805e-03  5.060e-03   1.147 0.251567    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3206 on 824 degrees of freedom
+Multiple R-squared:  0.279,	Adjusted R-squared:  0.2396 
+F-statistic: 7.084 on 45 and 824 DF,  p-value: < 2.2e-16
+
+Referencing the significance codes once again:
+
+	JobInvolvement                    8.384e-02  1.590e-02   5.273 1.71e-07 ***						
+	JobSatisfaction                   4.196e-02  1.003e-02   4.184 3.17e-05 ***						
+	NumCompaniesWorked               -2.145e-02  5.081e-03  -4.222 2.69e-05 ***						
+	OverTime                         -2.105e-01  2.453e-02  -8.578  < 2e-16 ***						
+	StockOptionLevel                  4.783e-02  1.329e-02   3.599 0.000339 ***						
+	DistanceFromHome                 -4.152e-03  1.385e-03  -2.998 0.002796 ** 						
+	EnvironmentSatisfaction           2.798e-02  1.017e-02   2.750 0.006090 ** 						
+	WorkLifeBalance                   4.159e-02  1.561e-02   2.664 0.007870 ** 						
+	YearsSinceLastPromotion          -1.481e-02  4.633e-03  -3.197 0.001440 ** 						
+	BusinessTravelTravel_Frequently  -1.045e-01  4.293e-02  -2.434 0.015136 *  						
+	JobRoleSales Representative      -2.343e-01  1.188e-01  -1.973 0.048787 *  						
+	RelationshipSatisfaction          2.363e-02  1.010e-02   2.338 0.019606 *  						
+	TotalWorkingYears                 6.777e-03  3.370e-03   2.011 0.044672 *  						
+	TrainingTimesLastYear             1.848e-02  8.826e-03   2.094 0.036591 *  						
+
+
+## Narrowing down the analysis
+
+There are a few variables that are common to both sets:
+
+1. JobInvolvement
+2. JobSatisfaction
+3. NumCompaniesWorked
+4. OverTime
+5. StockOptionLevel
+
+It makes sense to narrow the analysis to these few factors to see their effect and to get a better feel for which ones make the most impact.  
+
+Using standard Multiple Linear regression, I'll focus on these variables. I will also test the 7 factors that must be adhered to in order for this analysis to be valid.
+
+Before I dig into the 7 assumptions, I'm going to run these 5 variables only instead of the whole set.
+
+```{r}
+fit = lm(Attrition ~ JobInvolvement + JobSatisfaction + NumCompaniesWorked + OverTime + StockOptionLevel, data = KNN_2)
+summary(fit)
+preds = predict(fit)
+#preds
+```
+Here is what we've got:
+
+Call:
+lm(formula = Attrition ~ JobInvolvement + JobSatisfaction + NumCompaniesWorked + 
+    OverTime + StockOptionLevel, data = KNN_2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.07477 -0.00566  0.09374  0.18965  0.57285 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(>|t|)    
+(Intercept)         0.521312   0.058511   8.910  < 2e-16 ***
+JobInvolvement      0.091016   0.016539   5.503 4.92e-08 ***
+JobSatisfaction     0.040171   0.010442   3.847 0.000128 ***
+NumCompaniesWorked -0.008044   0.004612  -1.744 0.081468 .  
+OverTime           -0.217308   0.025549  -8.506  < 2e-16 ***
+StockOptionLevel    0.058663   0.013547   4.330 1.66e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3415 on 864 degrees of freedom
+Multiple R-squared:  0.1425,	Adjusted R-squared:  0.1375 
+F-statistic: 28.71 on 5 and 864 DF,  p-value: < 2.2e-16
+
+It would appear that NumCompaniesWorked has dropped out.  Let's run the same analysis with just these variables leaving out NumCompaniesWorked. 
+
+```{r}
+fit = lm(Attrition ~ JobInvolvement + JobSatisfaction + OverTime + StockOptionLevel, data = KNN_2)
+summary(fit)
+unique(KNN_2$JobInvolvement)
+unique(KNN_2$JobSatisfaction)
+unique(KNN_2$OverTime)
+unique(KNN_2$StockOptionLevel)
+
+JI <- KNN_2$JobInvolvement
+OT <- KNN_2$OverTime
+SO <- KNN_2$StockOptionLevel
+
+fit = lm(Attrition ~ JI + OT + SO, data = KNN_2)
+summary(fit)
+
+
+```
+Call:
+lm(formula = Attrition ~ JobInvolvement + JobSatisfaction + OverTime + 
+    StockOptionLevel, data = KNN_2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.10928  0.00648  0.09784  0.18903  0.58918 
+
+Coefficients:
+                 Estimate Std. Error t value Pr(>|t|)    
+(Intercept)       0.49533    0.05665   8.744  < 2e-16 ***
+JobInvolvement    0.09136    0.01656   5.518 4.54e-08 ***
+JobSatisfaction   0.04156    0.01042   3.987 7.26e-05 ***
+OverTime         -0.21743    0.02558  -8.501  < 2e-16 ***
+StockOptionLevel  0.05788    0.01356   4.270 2.17e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3419 on 865 degrees of freedom
+Multiple R-squared:  0.1395,	Adjusted R-squared:  0.1355 
+F-statistic: 35.05 on 4 and 865 DF,  p-value: < 2.2e-16
+
+Looking solely at the magnitude of the Estimate values for each variable, it would appear that these three factors contribute to Attrition:
+
+Attrition = .49533 + .09136(JobInvolvement) - 0.21743(OverTime) + .05788(StockOptionLevel)
+
+JobInvolvement is a non-defined variable with levels of 1 - 4
+JobSatisfaction is a non-defined variable with levels of 1 - 4
+OverTime is a somewhat non-defined variable with a level of 0 and 1
+StockOptionLevel is a non-defined variable with a level of 0-3
+
+This would likely make for an interesting ShinyApp plugging allowing these variables to be set by the user.  Presumably, Attrition = 0 is not employed at the company anymore.  Attrition = 1 means still employed.  The Intercept at basically .5 makes sense and the other variables add or subtract from this level with greater than .5 meaning still working and less than .5 meaning not working.  
+
+To rename the variables and run the final factors:
+
+```{r}
+JI <- KNN_2$JobInvolvement
+OT <- KNN_2$OverTime
+SO <- KNN_2$StockOptionLevel
+
+fit = lm(Attrition ~ JI + OT + SO, data = KNN_2)
+summary(fit)
+preds = predict(fit)
+#reds
+```
+Call:
+lm(formula = Attrition ~ JI + OT + SO, data = KNN_2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.05337  0.00429  0.11961  0.20757  0.51008 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  0.61650    0.04821  12.787  < 2e-16 ***
+JI           0.08796    0.01668   5.275 1.68e-07 ***
+OT          -0.21454    0.02579  -8.320 3.41e-16 ***
+SO           0.05766    0.01367   4.218 2.73e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3448 on 866 degrees of freedom
+Multiple R-squared:  0.1237,	Adjusted R-squared:  0.1206 
+F-statistic: 40.73 on 3 and 866 DF,  p-value: < 2.2e-16
+
+# Attrition = .61650 - .21454(OT) + .08796(JI) + .05766(SO)
+
+This would indeed make for a great ShinyApp.  
+---------------
+
+1. The relationship between the independent and dependent variables is linear.
+2. The distribution of the response for fixed values of the explanatory variables is normal.
+3. The distribution of the residuals is normal.
+4. The normal distributions of the response should have constant variance (standard deviation) for fixed
+values of the explanatory variables.
+5. The normal distributions of the residuals should have constant variance (standard deviation) for fixed
+values of the explanatory variables.
+6. Explanatory variables are independent of one another. (No multicollinearity).
+7. Observations are independent of one another.
+
+##I asked ChatGPT how to evaluate these 7 factors.  Here are the results:
+
+1. Linearity: The relationship between the predictor variables and the target variable should be linear.
+
+How to check:
+
+Create scatter plots of each predictor variable against the target variable.
+Plot the residuals against the predicted values (fitted values).
+
+```{r}
+fit = lm(Attrition ~ JI + OT + SO, data = KNN_2)
+summary(fit)
+preds = predict(fit)
+fit = lm(Attrition~JI + OT +SO, data = KNN_2)
+hist(fit$residuals, col = "blue", main = "Histogram of Residuals of Attrition, JobInvolvement, OverTime and StockOptionLevel")
+plot(fit$fitted.values,fit$residuals, main = "Plot of Residuals v. Fitted Values")
+
+library(GGally)
+fit %>% ggpairs()
+```
+This ggpairs plot shows much of what is shown below in many of the remaining steps.  It appears that all but one variable appears to be valid with one in the questionable range, but not wildly out of balance.  
+
+2. Independence of observations: The observations should be independent of each other, the .
+
+How to check:
+
+If you have time-series or spatial data, plot the data to see if there is any visible pattern or clustering.
+Use the Durbin-Watson test to detect autocorrelation in the residuals.
+
+```{r}
+#install.packages("car")
+library(car)
+
+durbinWatsonTest(fit)
+```
+durbinWatsonTest(fit)
+ lag Autocorrelation D-W Statistic p-value
+   1      0.01114613      1.977531   0.808
+ Alternative hypothesis: rho != 0
+ 
+Since the p value is greater than .05, we cannot reject the null hypothesis that the residuals are not autocorrelated.  
+
+3. Homoscedasticity (constant variance) of residuals: The residuals should have constant variance across the range of predictor variables.
+
+How to check:
+
+Plot the residuals against the predicted values.
+Use formal tests, such as the Breusch-Pagan test or the White test, to detect heteroscedasticity.
+
+```{r}
+#install.packages("lmtest")
+library(lmtest)
+
+bptest(fit)
+```
+bptest(fit)
+
+	studentized Breusch-Pagan test
+
+data:  fit
+BP = 78.491, df = 3, p-value < 2.2e-16
+
+Since the p-value is less than .05, we fail reject the null hypothesis and say that heteroscedasticity is present in the regression model.  This means that we can proceed with the original model.  Heteroscedasticity is a problem because ordinary least squares (OLS) regression assumes that the residuals come from a population that has homoscedasticity, which means constant variance.
+
+4. Normally distributed residuals: The residuals should follow a normal distribution.
+
+How to check:
+
+Create a histogram or density plot of the residuals.
+Create a Q-Q plot (quantile-quantile plot) to compare the distribution of the residuals to a normal distribution.
+Use formal tests, such as the ***Shapiro-Wilk test*** or the Kolmogorov-Smirnov test, to check for normality.
+
+```{r}
+res <- resid(fit)
+plot(fitted(fit), res)
+
+qqnorm(res)
+qqline(res)
+
+plot(density(res))
+```
+
+
+5. No multicollinearity: Predictor variables should not be highly correlated with each other.
+
+How to check:
+
+Calculate the correlation matrix for the predictor variables.
+Calculate the variance inflation factor (VIF) for each predictor variable. VIF values greater than 10 indicate high multicollinearity.
+
+
+#```{r}
+cor(KNN_2)
+
+df <- cbind(KNN_2$Attrition, KNN_2$JobInvolvement, KNN_2$OverTime, KNN_2$StockOptionLevel)
+
+library(Hmisc)
+rcorr(as.matrix(df))
+
+#install.packages("corrplot")
+library(corrplot)
+corrplot(cor(df))
+
+#install.packages("ggcorrplot")
+library(ggcorrplot)
+ggcorrplot(cor(df))
+#```
+This extended series of plots leads me to believe there is no multicollinearity (source: Statology.org)
+
+
+6. No influential outliers: The model should not be overly influenced by a few extreme data points.
+
+How to check:
+
+Create scatter plots of each predictor variable against the target variable to visually identify outliers.
+Use Cook's distance or leverage values to detect influential points.
+
+```{r}
+plot(KNN_2$Attrition, KNN_2$JobInvolvement, pch = 19, col = "black")
+plot(KNN_2$Attrition, KNN_2$OverTime, pch = 19, col = "black")
+plot(KNN_2$Attrition, KNN_2$StockOptionLevel, pch = 19, col = "black")
+
+
+```
+No significant outliers
+
+7. Correct functional form: The model should be specified correctly (e.g., no omitted or extraneous variables, correct interactions and transformations).
+
+How to check:
+
+Use domain knowledge to ensure that the model specification makes sense.
+Plot the residuals against each predictor variable or against the predicted values to check for any patterns, which may indicate a missing variable, interaction, or transformation.
+
+Summary: Performing these diagnostic checks will help you determine if the assumptions of linear regression are met in your dataset. If any assumptions are violated, you may need to address the issues by transforming variables, incorporating interaction terms, or considering alternative modeling approaches.
+
+
+
+
+
+## I believe I've successfully proven the validity of the assumptions underlying the linearity of the MLR model, I want to explore whether or not any of the variables should be squared, cubed, etc.  I think a scatter plot of all of the variables with three different lines showing the regression for that variable against the dependent variable.  The most straight forward way to accomplish this is one at a time.  Week 10 provided some starting code points for this.  
+
+
+```{r}
+#Recall
+
+df <- as.data.frame(cbind(KNN_2$Attrition, KNN_2$JobInvolvement, KNN_2$OverTime, KNN_2$StockOptionLevel))
+#View(df)
+df %>% ggplot(aes(x = V1, y = V3)) + geom_point() + ggtitle("df: Attrition v. OverTime") + geom_smooth(method = "lm") + xlim(0,6)
+
+# degree 1 model
+fit = lm(V1~V3, data = df)
+summary(fit)
+
+#degree 2 model
+df %>% ggplot(aes(x = V1, y = V3)) + geom_point()
+df2 = df %>% mutate(V_3 = V3^2)
+fit = lm(V1~V3+V_3, df2)
+summary(fit)
+
+preds = predict(fit)
+df2 %>% ggplot(aes(x = V1, y = V3)) + geom_point() +geom_line(data = df2, aes( x = V1, y = preds, col = "red"))
+
+#deg 3 model 
+df %>% ggplot(aes(x = V1, y = V3)) + geom_point()
+df3 = df %>% mutate(V_3 = V3^2, V_33 = V3^3)
+#View(df3)
+fit = lm(V1~V3+V_3+V_33, df3)
+summary(fit)
+preds = predict(fit)
+df3 %>% ggplot(aes(x = V1, y = V3)) + geom_point() +geom_line(data = df3, aes( x = V2, y = preds, col = "red"))
+```
+OverTime squared or cubed has no effect on Attrition, as we see below.  
+
+Call:
+lm(formula = V1 ~ V3 + V_3 + V_33, data = df3)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.90291  0.09709  0.09709  0.09709  0.31746 
+
+Coefficients: (2 not defined because of singularities)
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  0.90291    0.01424  63.406  < 2e-16 ***
+V3          -0.22037    0.02646  -8.329 3.16e-16 ***
+V_3               NA         NA      NA       NA    
+V_33              NA         NA      NA       NA    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.354 on 868 degrees of freedom
+Multiple R-squared:  0.074,	Adjusted R-squared:  0.07294 
+F-statistic: 69.37 on 1 and 868 DF,  p-value: 3.164e-16
+
+Let's follow the same analysis on JobInvolvement:
+
+```{r}
+#Recall
+
+df <- as.data.frame(cbind(KNN_2$Attrition, KNN_2$JobInvolvement, KNN_2$OverTime, KNN_2$StockOptionLevel))
+#View(df)
+df %>% ggplot(aes(x = V1, y = V2)) + geom_point() + ggtitle("df: Attrition v. JobInvolvement") + geom_smooth(method = "lm") + xlim(0,6)
+
+# degree 1 model
+fit = lm(V1~V2, data = df)
+summary(fit)
+
+#degree 2 model
+df %>% ggplot(aes(x = V1, y = V2)) + geom_point()
+df_2 = df %>% mutate(V_2 = V2^2) #df_2 is distinct from df2 so we don't get any interaction
+fit = lm(V1~V2+V_2, df_2)
+summary(fit)
+
+preds = predict(fit)
+df_2 %>% ggplot(aes(x = V1, y = V2)) + geom_point() +geom_line(data = df_2, aes( x = V1, y = preds, col = "red"))
+
+#deg 3 model 
+df %>% ggplot(aes(x = V1, y = V2)) + geom_point()
+df_3 = df %>% mutate(V_2 = V2^2, V_22 = V2^3)
+#View(df_3)
+fit = lm(V1~V2+V_2+V_22, df_3)
+summary(fit)
+preds = predict(fit)
+df_3 %>% ggplot(aes(x = V1, y = V2)) + geom_point() +geom_line(data = df_3, aes( x = V2, y = preds, col = "red"))
+```
+
+Call:
+lm(formula = V1 ~ V2, data = df)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.9644  0.1337  0.1337  0.1337  0.3300 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  0.57188    0.04899  11.673  < 2e-16 ***
+V2           0.09813    0.01742   5.633 2.39e-08 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3613 on 868 degrees of freedom
+Multiple R-squared:  0.03527,	Adjusted R-squared:  0.03415 
+F-statistic: 31.73 on 1 and 868 DF,  p-value: 2.393e-08
+
+Degree model 2 appears to have some traction:
+
+Call:
+lm(formula = V1 ~ V2 + V_2, data = df2)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.8872  0.1179  0.1179  0.1179  0.4226 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  0.27775    0.11462   2.423 0.015589 *  
+V2           0.34877    0.09007   3.872 0.000116 ***
+V_2         -0.04910    0.01731  -2.836 0.004676 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3599 on 867 degrees of freedom
+Multiple R-squared:  0.04413,	Adjusted R-squared:  0.04193 
+F-statistic: 20.02 on 2 and 867 DF,  p-value: 3.179e-09
+
+Let's try model 3 v2^3:
+
+Call:
+lm(formula = V1 ~ V2 + V_2 + V_22, data = df_3)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.9136  0.1303  0.1303  0.1303  0.4681 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)   
+(Intercept) -0.14943    0.26456  -0.565  0.57234   
+V2           0.94905    0.34702   2.735  0.00637 **
+V_2         -0.30000    0.14115  -2.125  0.03383 * 
+V_22         0.03229    0.01803   1.791  0.07364 . 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3594 on 866 degrees of freedom
+Multiple R-squared:  0.04766,	Adjusted R-squared:  0.04436 
+F-statistic: 14.45 on 3 and 866 DF,  p-value: 3.441e-09
+
+It doesn't appear that V2^3 is a viable resource as the p-value is greater than .05..but, not by much.  What's interesting is what it's done to the y intercept and to the V2 coefficient.  
+
+## Okay, one more variable to run through this process:
+
+```{r}
+#Recall
+
+df <- as.data.frame(cbind(KNN_2$Attrition, KNN_2$JobInvolvement, KNN_2$OverTime, KNN_2$StockOptionLevel))
+#View(df)
+df %>% ggplot(aes(x = V1, y = V4)) + geom_point() + ggtitle("df: Attrition v. StockOptionLevel") + geom_smooth(method = "lm") + xlim(0,6)
+
+# degree 1 model
+fit = lm(V1~V4, data = df)
+summary(fit)
+
+#degree 2 model
+df %>% ggplot(aes(x = V1, y = V4)) + geom_point()
+df_4 = df %>% mutate(V_4 = V4^2) #df_4 is distinct from df4 so we don't get any interaction.  And, consistent with the prior analysis.
+fit = lm(V1~V4+V_4, df_4)
+summary(fit)
+
+preds = predict(fit)
+df_4 %>% ggplot(aes(x = V1, y = V4)) + geom_point() +geom_line(data = df_4, aes( x = V1, y = preds, col = "red"))
+
+#deg 3 model 
+df %>% ggplot(aes(x = V1, y = V4)) + geom_point()
+df_4 = df %>% mutate(V_4 = V4^2, V_44 = V4^3)
+#View(df_4)
+fit = lm(V1~V4+V_4+V_44, df_4)
+summary(fit)
+preds = predict(fit)
+df_4 %>% ggplot(aes(x = V1, y = V4)) + geom_point() +geom_line(data = df_4, aes( x = V4, y = preds, col = "red"))
+```
+### Single variable model 1:
+
+Call:
+lm(formula = V1 ~ V4, data = df)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.98031  0.08342  0.14715  0.21088  0.21088 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  0.78912    0.01671   47.22  < 2e-16 ***
+V4           0.06373    0.01439    4.43 1.06e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3638 on 868 degrees of freedom
+Multiple R-squared:  0.02211,	Adjusted R-squared:  0.02098 
+F-statistic: 19.62 on 1 and 868 DF,  p-value: 1.065e-05
+
+###Model 2:
+
+Call:
+lm(formula = V1 ~ V4 + V_4, data = df_4)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.94491  0.05930  0.07194  0.25986  0.25986 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  0.74014    0.01814  40.812  < 2e-16 ***
+V4           0.27346    0.03637   7.520 1.37e-13 ***
+V_4         -0.08554    0.01367  -6.255 6.23e-10 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3561 on 867 degrees of freedom
+Multiple R-squared:  0.06433,	Adjusted R-squared:  0.06217 
+F-statistic: 29.81 on 2 and 867 DF,  p-value: 3.03e-13
+
+### Model 3:
+
+Call:
+lm(formula = V1 ~ V4 + V_4 + V_44, data = df_4)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.96296  0.04679  0.07606  0.25858  0.25858 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  0.74142    0.01830  40.522   <2e-16 ***
+V4           0.22871    0.09013   2.538   0.0113 *  
+V_4         -0.03342    0.09701  -0.344   0.7306    
+V_44        -0.01278    0.02354  -0.543   0.5875    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3562 on 866 degrees of freedom
+Multiple R-squared:  0.06465,	Adjusted R-squared:  0.06141 
+F-statistic: 19.95 on 3 and 866 DF,  p-value: 1.642e-12
+
+The V4^2 model has some legs, but it breaks down with a cubed model, completely.  
+
+What does that leave us with?  
+
+V1 = V2 +V2^2 - V3 + V4 -V4^2
+
+How do we evaluate the validity of that entire model?  
+
+fit = lm(V1~V2 +V_2 -V3 + V4 + V_4 - V_44, df_?) The data.frame must be created to include all of the components.  
+df_Final <- as.data.frame(cbind(df, df_2, df_3, df_4) (these data.frame's are not properly named, but you get the idea.  
+
+```{r}
+df_Final <- as.data.frame(cbind(df, df2, df_2, df3, df_4))
+#df_Final
+
+
+fit_Final = lm(formula = V1~V2 + V_2 - V3 + V4 - V_4, data = df_Final)
+summary(fit_Final)
+```
+This would appear to be the final multiple linear regression equation results:
+
+Call:
+lm(formula = V1 ~ V2 + V_2 - V3 + V4 - V_4, data = df_Final)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.01131  0.04748  0.10628  0.16507  0.46163 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  0.23977    0.11393   2.105  0.03561 *  
+V2           0.34870    0.08923   3.908  0.00010 ***
+V_2         -0.05011    0.01716  -2.921  0.00358 ** 
+V4           0.05879    0.01414   4.158 3.53e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3565 on 866 degrees of freedom
+Multiple R-squared:  0.06285,	Adjusted R-squared:  0.0596 
+F-statistic: 19.36 on 3 and 866 DF,  p-value: 3.731e-12
+
+This is the equation I'll work on getting into a ShinyApp with sliders?  Or, some sort of toggle for the values of each of the Coefficients.  Interestingly enough, V3 (dropped out completely) as did V4^2.  That worries me a bit.  I've gone through my numbers, variables, data.frames and it appears that I'm going this correctly.  Albeit a bit messy, but I'm sure I've got all the right variables and data.frames in there.  Woo Hoo!!!  
+
+```{r}
+#V3
+```
+
+
+## V1 = 0.23977 + .34870(V2) - 0.05011(V2^2) + 0.05879(V4)
+
+V1 = Attrition
+V2 = JobInvolvement, 
+V4 = StockOptionLevel
+
+This makes sense logically.  
+
+From Here, there project moved to Project_2a.Rmd (sorry for the multiple files, but each file was becoming quite large and unwieldy.  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

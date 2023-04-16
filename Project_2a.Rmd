@@ -1,15 +1,15 @@
 ---
 title: "Project_2a"
 author: "Todd Garner"
-date: "2023-04-03"
+date: "2023-04-08"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(dev = c('pdf', 'png'), 
-        fig.align = 'center', fig.height = 5, fig.width = 8.5, 
-        pdf.options(encoding = "ISOLatin9.enc")) 
+
 
 library(class)
 library(caret)
@@ -20,63 +20,1272 @@ library(ggplot2)
 library(ggthemes)
 library(tidyverse)
 library(gridExtra)
+library(readxl)
+```
+# This is the analysis from Project_2a_reg_eval.Rmd from line 191 to line 371 - I'm going to take the overall analysis split into train and test sets and then move ahead with the RMSE analysis to see if I'm on the right track.  Not really sure I need to employed/unemployed splits but I did it anyway.  Below that, I create the train and test setwith the idea that I'm going to evaluate my lm() model with RMSE.  
+
+
+
+```{r}
+#Load in the Casestudy2-data_excel.xlsx data set from the main repo on GitHub
+CS2_2 = readxl::read_excel(file.choose())
+#View(CS2_2)
+```
+```{r}
+employed <- CS2_2 %>% filter(Attrition == "No")
+#View(employed)
+employed <- CS2_2 %>% filter(Attrition == "No")
+#View(employed)
+unemployed <- CS2_2 %>% filter(Attrition == "Yes")
+#View(unemployed)
+tenure1 <- max(CS2_2$YearsAtCompany)
+#tenure1
+
+hist(unemployed$Age)
+hist(unemployed$Age)
+hist(unemployed$YearsAtCompany)
+hist(unemployed$Age, main = "Not Working and Age")
+hist(unemployed$YearsAtCompany, main = "Not working and Years at the Company")
+hist(unemployed$Age, main = "Not Working and Age")
+hist(unemployed$YearsAtCompany, main = "Not working and Years at the Company", xlab = "Age", ylab = "Number of employees lost")
+hist(unemployed$Age, main = "Age when employment ended", xlab = "Age", ylab = "Number of employees lost")
+hist(unemployed$YearsAtCompany, main = "Years at the Company when employment ended", xlab = "Number of Years at the Company", ylab = "Number of employees lost")
+summary(unemployed$Age)
+summary(unemployed$YearsAtCompany)
+t.test(unemployed$Age)
+t.test(unemployed$YearsAtCompany)
+```
+```{r}
+hist(employed$Age, main = "Age when employment ended", xlab = "Age", ylab = "Number of employees remaining")
+hist(employed$YearsAtCompany, main = "Years at the Company when this data was taken", xlab = "Number of Years at the Company", ylab = "Number of employees lost")
+summary(employed$Age)
+summary(employed$YearsAtCompany)
+hist(employed$Age, main = "Age when data was recorded", xlab = "Age", ylab = "Number of employees remaining")
+hist(employed$YearsAtCompany, main = "Years at the Company when this data was recorded", xlab = "Number of Years at the Company", ylab = "Number of employees lost")
+summary(employed$Age)
+summary(employed$YearsAtCompany)
+hist(employed$Age, main = "Age when data was recorded", xlab = "Age", ylab = "Number of employees remaining")
+hist(employed$YearsAtCompany, main = "Years at the Company when this data was recorded", xlab = "Number of Years at the Company", ylab = "Number of employees remaining")
+summary(employed$Age)
+summary(employed$YearsAtCompany)
+t.test(employed$Age)
+t.test(employed$YearsAtCompany)
+```
+We have three useful data sets.  CS2_2 - all data, employed - those employees still working at Frito Lay, unemployed - those employees that have left the company.  Unemployed could include fired, resigned, died, retired.  I can't think of any other reasons, but I don't think that's relevant.  
+
+I plotted all of the histograms and got the summary() for the unemployed data set with with each variable on the X axis and the count on the Y axis.  Those were saved as PDF's.  A few were notable but we need more data analysis.  
+
+
+
+
+```{r}
+KNN_2 <- CS2_2
+View(KNN_2)
+```
+Now we have a new data.frame with all 870 observations.  Perhaps we should deal with missing values.  Amazingly, there appear to be no missing values.  So, there are a few columns that have binary values.  We can change those to 0 and 1.  All employees are/were over 18.  That column adds no value so we should drop it.  There are 5 columns with multiple characters in categories.  For now, I'm going to drop those columns out of the data.frame.  
+
+```{r}
+summary(KNN_2)
+sum(is.na(KNN_2))
+
+
+#convert binary columns to 1s and 0s. 
+KNN_2$Attrition <- str_replace(KNN_2$Attrition,"No", "1")
+KNN_2$Attrition <- str_replace(KNN_2$Attrition,"Yes", "0")
+#KNN_2$Attrition
+KNN_2$Gender <- str_replace(KNN_2$Gender,"Female", "1")
+KNN_2$Gender <- str_replace(KNN_2$Gender,"Male", "0")
+#KNN_2$Gender
+KNN_2$OverTime <- str_replace(KNN_2$OverTime,"Yes", "1")
+KNN_2$OverTime <- str_replace(KNN_2$OverTime,"No", "0")
+#KNN_2$OverTime
+KNN_2$MaritalStatus <- str_replace(KNN_2$MaritalStatus,"Single", "0")
+KNN_2$MaritalStatus <- str_replace(KNN_2$MaritalStatus,"Divorced", "0")
+KNN_2$MaritalStatus <- str_replace(KNN_2$MaritalStatus,"Married", "1")
+#KNN_2$MaritalStatus
+
+#[NOTE: THIS IS WHERE I NEED TO FACTORIZE THESE PREDICTORS AND KEEP THEM IN THE MODEL.]  
+#Instead of removing them, I need to factorize each of these predictors:
+#View(KNN_2)
+KNN_2$BusinessTravel <- factor(KNN_2$BusinessTravel)
+KNN_2$Department <- factor(KNN_2$Department)
+KNN_2$EducationField <- factor(KNN_2$EducationField)
+KNN_2$JobRole <- factor(KNN_2$JobRole)
+#KNN_2$Attrition <- factor(KNN_2$Attrition)
+#KNN_2$Gender <- factor(KNN_2$Gender)
+#KNN_2$OverTime <- factor(KNN_2$OverTime)
+#KNN_2$MaritalStatus <- factor(KNN_2$MaritalStatus)
+
+#View(KNN_2)
+summary(KNN_2)
+
+
+
+#Remove the BusinessTravel, Department, EducationField, JobRole, MaritalStatus columns. 
+#KNN_2[ , c('BusinessTravel', 'Department', 'EducationField', 'JobRole', 'MaritalStatus')] <- list(NULL)
+#View(KNN_2)
+KNN_2[ , c('Over18', 'EmployeeCount', 'StandardHours')] <- list(NULL)
+#View(KNN_2)
+summary(KNN_2)
+```
+We need to convert all character columns to numeric
+```{r}
+KNN_2$Attrition <- as.numeric(KNN_2$Attrition)
+KNN_2$Gender <- as.numeric(KNN_2$Gender)
+KNN_2$OverTime <- as.numeric(KNN_2$OverTime)
+KNN_2$MaritalStatus <- as.numeric(KNN_2$MaritalStatus)
+
+summary(KNN_2)
+str(KNN_2)
+```
+All columns are numeric or factors.  R will substitute factors with dummy variables (per ChatGPT).  Now, we MAY need to scale some columns, but I'm going to attempt to run the lm() without scaling to aid in interpretability. 
+
+
+```{r}
+KNN_2$Attrition <- as.numeric(KNN_2$Attrition)
+KNN_2$Gender <- as.numeric(KNN_2$Gender)
+KNN_2$OverTime <- as.numeric(KNN_2$OverTime)
+summary(KNN_2)
+str(KNN_2)
 ```
 
-We want to find a way to predict attrition, given the data set CaseStudy2-data.csv. There are 36 columns including attrition. We need a classification (Yes or No) given the model we can design. We could look at it also as a recommendation model, but that seems a bit weaker than a classification. We have three methods to choose from as a requirement. KNN, Naive Bayes and Linear Regression. Logistic regression would be better as that's more of a classification model. The models are described below (using ChatGPT 4.0):
+Now the KNN_2 data.frame is ready for analysis.    
+```{r}
+set.seed(6)
+splitPerc = .75
+Full_set_2 = KNN_2 %>% filter(Attrition == "1" | Attrition == "0")
+trainInices_2 = sample(1:dim(Full_set_2)[1],round(splitPerc * dim(Full_set_2)[1]))
+train_2 = Full_set_2[trainInices_2,]
+test_2 = Full_set_2[-trainInices_2,]
+```
 
-##Naive Bayes ***Naive Bayes is a statistical algorithm used in data science for [classification and prediction tasks]{.underline}. It is based on Bayes' theorem, which describes the probability of an event based on prior knowledge of conditions that might be related to the event.***
+```{r}
+summary(train_2)
+summary(test_2)
+#View(train_2)
+#View(test_2)
+dim(train_2$Attrition)
+Only1_2 = train_2 %>% filter(Attrition == "1")
+#Only1_2
+```
+```{r}
+Model1_fit = lm(Attrition ~., data = train_2)
+summary(Model1_fit)
+str(Model1_fit)
+pred1 = predict(Model1_fit, data = train_2)
+#View(pred1)
+str(train_2$Attrition)
+#as.data.frame(train_2$Attrition)
+MSPE_train = mean((pred1 - train_2$Attrition)^2)
+#MSPE_train
+```
 
-***In the context of data science, Naive Bayes is often used for text classification, spam filtering, sentiment analysis, and recommendation systems. It assumes that the presence or absence of a particular feature in a class is unrelated to the presence or absence of any other feature in that class. This is known as the "naive" assumption, and it simplifies the calculations necessary for classification.***
+MSPE_train = mean((pred1 - train_2$Attrition)^2)
+MSPE_train
+[1] 0.09565996
 
-***Naive Bayes works by first calculating the probability of each class given the input features. This is known as the prior probability. It then calculates the likelihood of each feature given the class. Finally, it combines these probabilities using Bayes' theorem to calculate the posterior probability of each class given the input features. The class with the highest posterior probability is the predicted class for the input.***
+This is MSPE on the training set.  Let's run it on the test set.  
 
-***Overall, Naive Bayes is a fast and efficient algorithm that can be trained quickly and can handle large amounts of data. However, it may not always be the best choice for complex classification tasks or when the "naive" assumption is not appropriate.***
 
-##KNN(K nearest neighbors) ***K-nearest neighbors (KNN) is a non-parametric algorithm used in data science for both classification and regression tasks. It is a simple yet powerful algorithm that works by finding the K nearest data points to the new data point in question and then classifying or predicting the new data point based on the labels or values of its K nearest neighbors.***
 
-***In KNN, K is a hyperparameter that must be set before training the algorithm. It represents the number of neighbors that will be considered when classifying or predicting a new data point. To find the K nearest neighbors, KNN uses a distance metric (e.g., Euclidean distance) to calculate the distance between each data point in the training set and the new data point. The K nearest data points to the new data point are those with the smallest distances.***
 
-***For classification tasks, KNN assigns the class label that is most common among the K nearest neighbors to the new data point. For regression tasks, KNN assigns the average value of the K nearest neighbors to the new data point.***
 
-***KNN is a versatile algorithm that can work well with both linear and non-linear data. It can handle multi-class classification and can also be used for anomaly detection. However, it can be computationally expensive, especially for large datasets, and can be sensitive to the choice of K and the distance metric used.***
+```{r}
+Model1_preds = predict(Model1_fit, newdata = train_2)
+#as.data.frame(test_2$Attrition)
+#View(test_2$Attrition)
+str(Model1_preds)
+```
 
-###Different types of KNN methods:  KNN, KNN.cv and KNN LOOCV they are described as follows
-*KNN, KNN.cv, and KNN-LOOCV are all variations of the K-nearest neighbors algorithm, but with different techniques for evaluating the performance of the algorithm.*
+#View(test_2$Attrition)
+str(Model1_preds)
+ Named num [1:652] 0.91 1.064 1.008 0.826 0.754 ...
+ - attr(*, "names")= chr [1:652] "1" "2" "3" "4" ...
+MSPE = mean((Model1_preds - test_2$Attrition)^2)
+Warning message:
+In Model1_preds - test_2$Attrition :
+  longer object length is not a multiple of shorter object length
 
-*KNN is the basic K-nearest neighbors algorithm that works by finding the K nearest neighbors to a new data point and classifying it based on the class labels of those neighbors.*
 
-*KNN.cv is a variation of KNN that uses cross-validation to evaluate the performance of the algorithm. Cross-validation involves dividing the data into multiple subsets, training the algorithm on one subset, and testing it on another subset. KNN.cv repeats this process multiple times with different subsets of the data and averages the results to get a more accurate estimate of the algorithm's performance.*
 
-*KNN-LOOCV is another variation of KNN that uses leave-one-out cross-validation (LOOCV) to evaluate the performance of the algorithm. LOOCV involves training the algorithm on all but one data point and testing it on the left-out data point. This process is repeated for every data point in the dataset, and the results are averaged to get a more accurate estimate of the algorithm's performance.*
+```{r}
+MSPE = mean((Model1_preds - test_2$Attrition)^2)
+MSPE
+```
 
-*The main difference between these variations of KNN is the method used for evaluating the performance of the algorithm. KNN is the basic algorithm that doesn't use any evaluation technique, while KNN.cv and KNN-LOOCV use cross-validation and leave-one-out cross-validation, respectively, to estimate the performance of the algorithm. KNN.cv and KNN-LOOCV are generally considered to provide more accurate estimates of the algorithm's performance than KNN alone, but they can be more computationally expensive.*
+MSPE
+[1] 0.1827919
 
-##Linear Regression (single and multiple linear regression) ***Linear regression is a statistical method used in data science for modeling the relationship between a dependent variable and one or more independent variables. The goal of linear regression is to find the best-fit line or plane that minimizes the distance between the predicted values and the actual values of the dependent variable.***
+Not quite the accuracy we're seeking.  But, this is with all of the predictors in the data set.  We need to test after we cull some of the less/non-important variables.  
 
-***In simple linear regression, there is only one independent variable, and the relationship between the dependent variable and the independent variable is assumed to be linear. The best-fit line is determined by calculating the slope and intercept of the line that minimizes the sum of squared errors between the predicted values and the actual values of the dependent variable.***
 
-***In multiple linear regression, there are two or more independent variables, and the relationship between the [dependent variable and the independent variables is still assumed to be linear]{.underline}. The best-fit plane is determined by calculating the coefficients of the plane that minimize the sum of squared errors between the predicted values and the actual values of the dependent variable.***
+I'm going to run the same analysis as I've done before in the Project_2a_reg_eval.Rmd using a standard multiple linear regression model as we've seen before.  But, I'm going to reload the train and test set using a set.seed this time so I can track it.  
 
-***In both types of linear regression, the goal is to find the parameters that best describe the relationship between the independent variables and the dependent variable. These parameters are estimated using a method called ordinary least squares (OLS), which finds the values of the coefficients that minimize the sum of squared errors between the predicted values and the actual values of the dependent variable.***
 
-***Linear regression can be used for both prediction and inference tasks. In prediction tasks, the goal is to use the model to predict the value of the dependent variable for new values of the independent variables. In inference tasks, the goal is to understand the relationship between the independent variables and the dependent variable and to test hypotheses about this relationship.***
+```{r}
+summary(KNN_2)
+sum(is.na(KNN_2))
 
-***Overall, linear regression is a powerful and widely used method in data science for modeling the relationship between variables. Singular regression is simply another term for simple linear regression, which only has one independent variable.***
 
-##Thoughts about the different types of methods
-(@) KNN - Used for both classification and regression tasks. I would think that KNN LOOCV would be the most accurate.  But, with 36 columns of data and 870 rows, this could take some time to crunch. (Hmmm.....wonder if there's any coincidence that Unit 13 was on AWS and RStudio?)  
+#convert binary columns to 1s and 0s. 
+KNN_2$Attrition <- str_replace(KNN_2$Attrition,"No", "1")
+KNN_2$Attrition <- str_replace(KNN_2$Attrition,"Yes", "0")
+#KNN_2$Attrition
+KNN_2$Gender <- str_replace(KNN_2$Gender,"Female", "1")
+KNN_2$Gender <- str_replace(KNN_2$Gender,"Male", "0")
+#KNN_2$Gender
+KNN_2$OverTime <- str_replace(KNN_2$OverTime,"Yes", "1")
+KNN_2$OverTime <- str_replace(KNN_2$OverTime,"No", "0")
+#KNN_2$OverTime
+KNN_2$MaritalStatus <- str_replace(KNN_2$MaritalStatus,"Single", "0")
+KNN_2$MaritalStatus <- str_replace(KNN_2$MaritalStatus,"Divorced", "0")
+KNN_2$MaritalStatus <- str_replace(KNN_2$MaritalStatus,"Married", "1")
+#KNN_2$MaritalStatus
 
-(@) Linear Regression and Multiple Linear Regression - I looked up and found an article on the 7 steps that must be met to accomplish SLR or MLR.  
-  a. Dependent Variable must be continuous or discrete, while independent variable must be continuous, discrete or ordinal. 
-  b. Only linear relationships between independent variable and the dependent variables.
-  c. No Multicollinearity must exist between the independent variables.
-  d. The error variances are all equal
-  e. The error terms are normally distributed
-  f. No significant outliers
-  g. No auto-correlation of the error terms
+#[NOTE: THIS IS WHERE I NEED TO FACTORIZE THESE PREDICTORS AND KEEP THEM IN THE MODEL.]  
+#Instead of removing them, I need to factorize each of these predictors:
+#View(KNN_2)
+KNN_2$BusinessTravel <- factor(KNN_2$BusinessTravel)
+KNN_2$Department <- factor(KNN_2$Department)
+KNN_2$EducationField <- factor(KNN_2$EducationField)
+KNN_2$JobRole <- factor(KNN_2$JobRole)
+#KNN_2$Attrition <- factor(KNN_2$Attrition)
+#KNN_2$Gender <- factor(KNN_2$Gender)
+KNN_2$OverTime <- factor(KNN_2$OverTime)
+#KNN_2$MaritalStatus <- factor(KNN_2$MaritalStatus)
 
-That may be a tall order and may end up throwing out valuable variables.  
+#View(KNN_2)
+summary(KNN_2)
 
-(@) Naive-Bayes - I asked ChatGPT 4.0 about the pros and cons of Naive-Bayes.  **Overall, Naive Bayes is a powerful and efficient algorithm that can be used in a variety of classification problems. However, its performance depends heavily on the quality and relevance of the features used, and it may not always be the best choice for more complex problems.**  In particular, it suffers the same issue that SLR/MLR does in that factors that may have co-linearity.  It assumes that all of the features are independent of each other, which may not be a good assumption.  
 
-I will likely end up doing all of the above, but I'm going to go for KNN.cv and KNN LOOCV first.  I will have to do some data prep.  Deal with missing values and likely scale all features.  There are some features that are just words and those will have to be transformed into numbers.  
+
+#Remove the BusinessTravel, Department, EducationField, JobRole, MaritalStatus columns. 
+#KNN_2[ , c('BusinessTravel', 'Department', 'EducationField', 'JobRole', 'MaritalStatus')] <- list(NULL)
+#View(KNN_2)
+KNN_2[ , c('Over18', 'EmployeeCount', 'StandardHours')] <- list(NULL)
+#View(KNN_2)
+summary(KNN_2)
+```
+We need to convert all character columns to numeric
+```{r}
+KNN_2$Attrition <- as.numeric(KNN_2$Attrition)
+KNN_2$Gender <- as.numeric(KNN_2$Gender)
+KNN_2$OverTime <- as.numeric(KNN_2$OverTime)
+KNN_2$MaritalStatus <- as.numeric(KNN_2$MaritalStatus)
+
+summary(KNN_2)
+str(KNN_2)
+```
+All columns are numeric or factors.  R will substitute factors with dummy variables (per ChatGPT).  Now, we MAY need to scale some columns, but I'm going to attempt to run the lm() without scaling to aid in interpretability. 
+
+
+```{r}
+KNN_2$Attrition <- as.numeric(KNN_2$Attrition)
+KNN_2$Gender <- as.numeric(KNN_2$Gender)
+KNN_2$OverTime <- as.numeric(KNN_2$OverTime)
+summary(KNN_2)
+str(KNN_2)
+```
+
+Now the KNN_2 data.frame is ready for analysis.    
+```{r}
+set.seed(6)
+splitPerc = .75
+Full_set_2 = KNN_2 %>% filter(Attrition == "1" | Attrition == "0")
+trainInices_2 = sample(1:dim(Full_set_2)[1],round(splitPerc * dim(Full_set_2)[1]))
+train_2 = Full_set_2[trainInices_2,]
+test_2 = Full_set_2[-trainInices_2,]
+```
+
+```{r}
+summary(train_2)
+summary(test_2)
+#View(train_2)
+#View(test_2)
+dim(train_2$Attrition)
+Only1_2 = train_2 %>% filter(Attrition == "1")
+#Only1_2
+```
+```{r}
+Model1_fit = lm(Attrition ~., data = train_2)
+summary(Model1_fit)
+str(Model1_fit)
+pred1 = predict(Model1_fit, data = train_2)
+#View(pred1)
+str(train_2$Attrition)
+#as.data.frame(train_2$Attrition)
+MSPE_train = mean((pred1 - train_2$Attrition)^2)
+MSPE_train
+```
+
+MSPE_train = mean((pred1 - train_2$Attrition)^2)
+MSPE_train
+[1] 0.09565996
+
+This is MSPE on the training set.  Let's run it on the test set.  
+
+
+
+
+
+```{r}
+Model1_preds = predict(Model1_fit, newdata = train_2)
+#as.data.frame(Model1_preds)
+#View(Model1_preds)
+#as.data.frame(test_2$Attrition)
+#View(test_2$Attrition)
+str(Model1_preds)
+```
+
+#View(test_2$Attrition)
+str(Model1_preds)
+ Named num [1:652] 0.91 1.064 1.008 0.826 0.754 ...
+ - attr(*, "names")= chr [1:652] "1" "2" "3" "4" ...
+MSPE = mean((Model1_preds - test_2$Attrition)^2)
+Warning message:
+In Model1_preds - test_2$Attrition :
+  longer object length is not a multiple of shorter object length
+
+
+
+```{r}
+MSPE = mean((Model1_preds - test_2$Attrition)^2)
+MSPE
+```
+
+MSPE
+[1] 0.1827919
+
+Not quite the accuracy we're seeking.  But, this is with all of the predictors in the data set.  We need to test after we cull some of the less/non-important variables.  
+
+
+```{r}
+fit_2 = lm(Attrition ~ ., data = KNN_2)
+summary(fit_2)
+```
+Call:
+lm(formula = Attrition ~ ., data = KNN_2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.10640 -0.08117  0.07610  0.20307  0.52952 
+
+Coefficients:
+                                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                       1.867e-01  2.317e-01   0.806 0.420452    
+ID                               -1.405e-05  4.481e-05  -0.314 0.753853    
+Age                               3.255e-03  1.709e-03   1.904 0.057283 .  
+BusinessTravelTravel_Frequently  -1.045e-01  4.293e-02  -2.434 0.015136 *  
+BusinessTravelTravel_Rarely      -4.606e-02  3.658e-02  -1.259 0.208315    
+DailyRate                         2.365e-05  2.772e-05   0.853 0.393814    
+DepartmentResearch & Development -1.251e-01  1.446e-01  -0.865 0.387381    
+DepartmentSales                  -1.443e-01  1.480e-01  -0.975 0.329698    
+DistanceFromHome                 -4.152e-03  1.385e-03  -2.998 0.002796 ** 
+Education                         4.906e-03  1.129e-02   0.434 0.664075    
+EducationFieldLife Sciences       2.115e-01  1.119e-01   1.890 0.059111 .  
+EducationFieldMarketing           2.035e-01  1.187e-01   1.715 0.086707 .  
+EducationFieldMedical             2.182e-01  1.121e-01   1.947 0.051893 .  
+EducationFieldOther               2.106e-01  1.197e-01   1.760 0.078833 .  
+EducationFieldTechnical Degree    1.389e-01  1.166e-01   1.191 0.234078    
+EmployeeNumber                    1.446e-05  1.848e-05   0.782 0.434197    
+EnvironmentSatisfaction           2.798e-02  1.017e-02   2.750 0.006090 ** 
+Gender                            1.485e-02  2.255e-02   0.659 0.510376    
+HourlyRate                       -6.991e-04  5.530e-04  -1.264 0.206547    
+JobInvolvement                    8.384e-02  1.590e-02   5.273 1.71e-07 ***
+JobLevel                          1.792e-02  3.886e-02   0.461 0.644897    
+JobRoleHuman Resources           -1.398e-01  1.562e-01  -0.895 0.371028    
+JobRoleLaboratory Technician     -7.153e-02  5.234e-02  -1.367 0.172103    
+JobRoleManager                    1.556e-02  9.718e-02   0.160 0.872858    
+JobRoleManufacturing Director     7.776e-02  5.145e-02   1.511 0.131072    
+JobRoleResearch Director          7.837e-02  7.932e-02   0.988 0.323423    
+JobRoleResearch Scientist        -1.642e-02  5.192e-02  -0.316 0.751903    
+JobRoleSales Executive           -1.638e-02  1.088e-01  -0.151 0.880351    
+JobRoleSales Representative      -2.343e-01  1.188e-01  -1.973 0.048787 *  
+JobSatisfaction                   4.196e-02  1.003e-02   4.184 3.17e-05 ***
+MaritalStatus                     1.429e-02  2.292e-02   0.623 0.533150    
+MonthlyIncome                    -8.333e-06  1.059e-05  -0.787 0.431422    
+MonthlyRate                       9.383e-07  1.565e-06   0.599 0.549032    
+NumCompaniesWorked               -2.145e-02  5.081e-03  -4.222 2.69e-05 ***
+OverTime                         -2.105e-01  2.453e-02  -8.578  < 2e-16 ***
+PercentSalaryHike                -1.759e-03  4.810e-03  -0.366 0.714755    
+PerformanceRating                -1.463e-02  4.915e-02  -0.298 0.766033    
+RelationshipSatisfaction          2.363e-02  1.010e-02   2.338 0.019606 *  
+StockOptionLevel                  4.783e-02  1.329e-02   3.599 0.000339 ***
+TotalWorkingYears                 6.777e-03  3.370e-03   2.011 0.044672 *  
+TrainingTimesLastYear             1.848e-02  8.826e-03   2.094 0.036591 *  
+WorkLifeBalance                   4.159e-02  1.561e-02   2.664 0.007870 ** 
+YearsAtCompany                   -4.469e-03  4.153e-03  -1.076 0.282172    
+YearsInCurrentRole                8.308e-03  5.186e-03   1.602 0.109536    
+YearsSinceLastPromotion          -1.481e-02  4.633e-03  -3.197 0.001440 ** 
+YearsWithCurrManager              5.805e-03  5.060e-03   1.147 0.251567    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3206 on 824 degrees of freedom
+Multiple R-squared:  0.279,	Adjusted R-squared:  0.2396 
+F-statistic: 7.084 on 45 and 824 DF,  p-value: < 2.2e-16
+
+Referencing the significance codes once again:
+
+	JobInvolvement                    8.384e-02  1.590e-02   5.273 1.71e-07 ***						
+	JobSatisfaction                   4.196e-02  1.003e-02   4.184 3.17e-05 ***						
+	NumCompaniesWorked               -2.145e-02  5.081e-03  -4.222 2.69e-05 ***						
+	OverTime                         -2.105e-01  2.453e-02  -8.578  < 2e-16 ***						
+	StockOptionLevel                  4.783e-02  1.329e-02   3.599 0.000339 ***						
+	DistanceFromHome                 -4.152e-03  1.385e-03  -2.998 0.002796 ** 						
+	EnvironmentSatisfaction           2.798e-02  1.017e-02   2.750 0.006090 ** 						
+	WorkLifeBalance                   4.159e-02  1.561e-02   2.664 0.007870 ** 						
+	YearsSinceLastPromotion          -1.481e-02  4.633e-03  -3.197 0.001440 ** 						
+	BusinessTravelTravel_Frequently  -1.045e-01  4.293e-02  -2.434 0.015136 *  						
+	JobRoleSales Representative      -2.343e-01  1.188e-01  -1.973 0.048787 *  						
+	RelationshipSatisfaction          2.363e-02  1.010e-02   2.338 0.019606 *  						
+	TotalWorkingYears                 6.777e-03  3.370e-03   2.011 0.044672 *  						
+	TrainingTimesLastYear             1.848e-02  8.826e-03   2.094 0.036591 *  						
+
+
+## Narrowing down the analysis
+
+There are a few variables that are common to both sets:
+
+1. JobInvolvement
+2. JobSatisfaction
+3. NumCompaniesWorked
+4. OverTime
+5. StockOptionLevel
+
+It makes sense to narrow the analysis to these few factors to see their effect and to get a better feel for which ones make the most impact.  
+
+Using standard Multiple Linear regression, I'll focus on these variables. I will also test the 7 factors that must be adhered to in order for this analysis to be valid.
+
+Before I dig into the 7 assumptions, I'm going to run these 5 variables only instead of the whole set.
+
+```{r}
+fit_round2 = lm(Attrition ~ JobInvolvement + JobSatisfaction + NumCompaniesWorked + OverTime + StockOptionLevel, data = KNN_2)
+summary(fit_round2)
+preds_2 = predict(fit_round2)
+#preds_2
+```
+
+
+summary(fit_2)
+Call:
+lm(formula = Attrition ~ JobInvolvement + JobSatisfaction + NumCompaniesWorked + 
+    OverTime + StockOptionLevel, data = KNN_2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.07477 -0.00566  0.09374  0.18965  0.57285 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(>|t|)    
+(Intercept)         0.521312   0.058511   8.910  < 2e-16 ***
+JobInvolvement      0.091016   0.016539   5.503 4.92e-08 ***
+JobSatisfaction     0.040171   0.010442   3.847 0.000128 ***
+NumCompaniesWorked -0.008044   0.004612  -1.744 0.081468 .  
+OverTime           -0.217308   0.025549  -8.506  < 2e-16 ***
+StockOptionLevel    0.058663   0.013547   4.330 1.66e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3415 on 864 degrees of freedom
+Multiple R-squared:  0.1425,	Adjusted R-squared:  0.1375 
+F-statistic: 28.71 on 5 and 864 DF,  p-value: < 2.2e-16
+
+Let's see how this does in the RMSE analysis:
+
+
+summary(KNN_2)
+sum(is.na(KNN_2))
+
+
+
+
+
+Now the KNN_2 data.frame is ready for analysis.    
+```{r}
+set.seed(6)
+splitPerc = .75
+Full_set_round2 = KNN_2 %>% filter(Attrition == "1" | Attrition == "0")
+trainInices_round2 = sample(1:dim(Full_set_round2)[1],round(splitPerc * dim(Full_set_round2)[1]))
+train_round2 = Full_set_round2[trainInices_round2,]
+test_round2 = Full_set_round2[-trainInices_round2,]
+```
+
+```{r}
+summary(train_round2)
+summary(test_round2)
+#View(train_round2)
+#View(test_round2)
+dim(train_round2$Attrition)
+Only1_round2 = train_2 %>% filter(Attrition == "1")
+#$Only1_round2
+```
+```{r}
+Model_round2_fit = lm(Attrition ~., data = train_round2)
+summary(Model_round2_fit)
+str(Model_round2_fit)
+pred_round2 = predict(Model_round2_fit, data = train_round2)
+#View(pred_round2)
+str(train_round2$Attrition)
+#as.data.frame(train_round2$Attrition)
+MSPE_train2 = mean((pred_round2 - train_round2$Attrition)^2)
+#MSPE_train2
+```
+
+MSPE_train2 = mean((pred_round2 - train_round2$Attrition)^2)
+MSPE_train2
+[1] 0.09565996
+
+This is MSPE on the first training set and it's identical to the 2nd round training set.  Let's run it on the test set.  
+
+```{r}
+
+fit_round2 = lm(Attrition ~ JobInvolvement + JobSatisfaction + OverTime + StockOptionLevel, data = KNN_2)
+summary(fit_round2)
+preds_round2 = predict(fit_round2)
+#preds_round2
+```
+
+
+```{r}
+Model2_preds = predict(fit_round2, newdata = test_round2)
+#as.data.frame(Model2_preds)
+summary(Model2_preds)
+#View(Model2_preds)
+#as.data.frame(test_round2$Attrition)
+#View(test_round2$Attrition)
+str(Model2_preds)
+```
+
+View(test_2$Attrition)
+str(Model1_preds)
+ Named num [1:652] 0.91 1.064 1.008 0.826 0.754 ...
+ - attr(*, "names")= chr [1:652] "1" "2" "3" "4" ...
+MSPE = mean((Model1_preds - test_2$Attrition)^2)
+Warning message:
+In Model1_preds - test_2$Attrition :
+  longer object length is not a multiple of shorter object length
+
+
+
+```{r}
+MSPE = mean((Model2_preds - test_round2$Attrition)^2)
+MSPE
+```
+MSPE = mean((Model2_preds - test_round2$Attrition)^2)
+MSPE
+[1] 0.1054616
+
+This is not bad compared to the following on the training data.
+
+MSPE_train = mean((pred1 - train_2$Attrition)^2)
+MSPE_train
+[1] 0.09565996
+
+From this information below, we can probably drop out the NumCompaniesWorked variable.  
+
+Call:
+lm(formula = Attrition ~ JobInvolvement + JobSatisfaction + NumCompaniesWorked + 
+    OverTime + StockOptionLevel, data = KNN_2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.07477 -0.00566  0.09374  0.18965  0.57285 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(>|t|)    
+(Intercept)         0.521312   0.058511   8.910  < 2e-16 ***
+JobInvolvement      0.091016   0.016539   5.503 4.92e-08 ***
+JobSatisfaction     0.040171   0.010442   3.847 0.000128 ***
+NumCompaniesWorked -0.008044   0.004612  -1.744 0.081468 .  
+OverTime           -0.217308   0.025549  -8.506  < 2e-16 ***
+StockOptionLevel    0.058663   0.013547   4.330 1.66e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3415 on 864 degrees of freedom
+Multiple R-squared:  0.1425,	Adjusted R-squared:  0.1375 
+F-statistic: 28.71 on 5 and 864 DF,  p-value: < 2.2e-16
+
+Let's try that and run it back through RMSE
+
+
+```{r}
+
+fit_round2 = lm(Attrition ~ JobInvolvement + JobSatisfaction + OverTime + StockOptionLevel, data = KNN_2)
+summary(fit_round2)
+preds_round2 = predict(fit_round2)
+#preds_round2
+```
+Call:
+lm(formula = Attrition ~ JobInvolvement + JobSatisfaction + OverTime + 
+    StockOptionLevel, data = KNN_2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.10928  0.00648  0.09784  0.18903  0.58918 
+
+Coefficients:
+                 Estimate Std. Error t value Pr(>|t|)    
+(Intercept)       0.49533    0.05665   8.744  < 2e-16 ***
+JobInvolvement    0.09136    0.01656   5.518 4.54e-08 ***
+JobSatisfaction   0.04156    0.01042   3.987 7.26e-05 ***
+OverTime         -0.21743    0.02558  -8.501  < 2e-16 ***
+StockOptionLevel  0.05788    0.01356   4.270 2.17e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3419 on 865 degrees of freedom
+Multiple R-squared:  0.1395,	Adjusted R-squared:  0.13
+
+```{r}
+Model2_preds = predict(fit_round2, newdata = test_round2)
+#as.data.frame(Model2_preds)
+summary(Model2_preds)
+#View(Model2_preds)
+#as.data.frame(test_round2$Attrition)
+#View(test_round2$Attrition)
+str(Model2_preds)
+```
+
+```{r}
+MSPE = mean((Model2_preds - test_round2$Attrition)^2)
+MSPE
+```
+
+
+MSPE = mean((Model2_preds - test_round2$Attrition)^2)
+MSPE
+[1] 0.1072905
+
+About the same.  So, there you have it.  THE equation for Attrition.  
+
+# Run the No Attrition data set through the model
+Let's see if it's that easy to just drop it in.  I will probably have to clean it up a bit.  But, I'll give it a try.  
+
+Here's load in the CaseStudy2-No Attrition.csv.  Candidly, I've had nothing but headaches getting these to load properly so I used Excel Query to split the variables into columns.  No other treatment.  
+
+```{r}
+#JobInvolvement + JobSatisfaction + NumCompaniesWorked + OverTime + StockOptionLeve
+# Load the CaseStudy2 No Attrition_excel.xlsx file from the repo
+test_real2 <- readxl::read_excel(file.choose())
+test_real2$OverTime <- str_replace(test_real2$OverTime,"Yes", "1")
+test_real2$OverTime <- str_replace(test_real2$OverTime,"No", "0")
+#head(test_real2$OverTime)
+test_real2$OverTime <- as.numeric(test_real2$OverTime)
+#View(test_real2)
+str(test_real2)
+
+```
+
+
+```{r}
+Model2_preds = predict(fit_round2, newdata = test_real2)
+#as.data.frame(Model2_preds)
+summary(Model2_preds)
+#View(Model2_preds)
+#as.data.frame(test_real2$Attrition)
+#View(test_real2$Attrition)
+#as.data.frame(test_real2$EmployeeNumber)
+#View(test_real2$EmployeeNumber)
+str(Model2_preds)
+
+#Case2Predictions <- cbind(test_real2$
+```
+
+```{r}
+MSPE = mean((Model2_preds - test_round2$Attrition)^2)
+MSPE
+```
+Here is the MSPE from the No Attrition data set.  Overall, I'd say not too bad.  
+
+MSPE
+[1] 0.135237
+
+```{r}
+Prediction_real <- ifelse(Model2_preds > .5, "Yes", "No")
+Pred_real2 <- ifelse(Model2_preds > .5, "1", "0")
+Pred_real2 <- as.numeric(Pred_real2)
+sum(Pred_real2)
+#View(Prediction_real)
+
+Attrition_final <- cbind(Pred_real2, test_real2$EmployeeNumber)
+#Attrition_final
+
+#df <- as.data.table(Attrition_final)
+#df
+
+library(data.table)
+
+#fwrite(df, "C:\\Users\\tgarn\\OneDrive\\Desktop\\SMU - MS Data Science\\Courses\\GitHub\\DS_6306_weekly_assignments\\Project_2\\CaseStudy2DDS\\CaseStudy2GarnerAttrition1.csv")
+```
+
+# This is the RMSE analysis for Salary.  It starts the analysis above over again at line 285 (or thereabouts).  I will modify the object of analysis to Salary instead of Attrition.  
+
+## Salary Analysis Begins!
+
+Now the KNN_2 data.frame is ready for analysis.    
+```{r}
+set.seed(6)
+splitPerc = .75
+Full_set_salary = KNN_2 %>% filter(MonthlyIncome >0)
+trainInices_Salary = sample(1:dim(Full_set_salary)[1],round(splitPerc * dim(Full_set_salary)[1]))
+train_salary = Full_set_salary[trainInices_Salary,]
+test_salary = Full_set_salary[-trainInices_Salary,]
+```
+
+```{r}
+summary(train_salary)
+summary(test_salary)
+#View(train_salary)
+#View(test_salary)
+dim(train_salary$MonthlyIncome)
+Only1_salary = train_salary %>% filter(MonthlyIncome > 0)
+#Only1_salary
+```
+```{r}
+Model1_salary = lm(MonthlyIncome ~., data = train_salary)
+summary(Model1_salary)
+str(Model1_salary)
+pred_salary = predict(Model1_salary, data = train_salary)
+View(pred_salary)
+str(train_salary$MonthlyIncome)
+#as.data.frame(train_salary$MonthlyIncome)
+MSPE_train_salary = sqrt(mean((pred_salary - train_salary$MonthlyIncome)^2))
+#MSPE_train_salary
+```
+
+MSPE_train_salary = sqrt(mean((pred_salary - train_salary$MonthlyIncome)^2))
+MSPE_train_salary
+[1] 1017.984
+
+
+
+
+
+```{r}
+Model1_salary_test = predict(Model1_salary, newdata = train_salary)
+#as.data.frame(Model1_salary_test)
+#View(Model1_salary_test)
+#as.data.frame(test_salary$MonthlyIncome)
+#View(test_salary$MonthlyIncome)
+str(Model1_salary_test)
+```
+
+View(test_2$Attrition)
+str(Model1_preds)
+ Named num [1:652] 0.91 1.064 1.008 0.826 0.754 ...
+ - attr(*, "names")= chr [1:652] "1" "2" "3" "4" ...
+MSPE = mean((Model1_preds - test_2$Attrition)^2)
+Warning message:
+In Model1_preds - test_2$Attrition :
+  longer object length is not a multiple of shorter object length
+
+
+
+```{r}
+MSPE = sqrt(mean((Model1_salary_test - test_salary$MonthlyIncome)^2))
+MSPE
+```
+MSPE = sqrt(mean((Model1_salary_test - test_salary$MonthlyIncome)^2))
+Warning message:
+In Model1_salary_test - test_salary$MonthlyIncome :
+  longer object length is not a multiple of shorter object length
+
+MSPE
+[1] 6657.878
+
+This is the RMSE of the entire set.  Let's cull some of the variables and improve it.  
+
+```{r}
+Model1_salary = lm(MonthlyIncome ~., data = train_salary)
+summary(Model1_salary)
+```
+Call:
+lm(formula = MonthlyIncome ~ ., data = train_salary)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-3674.4  -663.2    -2.2   606.1  3835.0 
+
+Coefficients:
+                                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                       4.856e+02  9.022e+02   0.538 0.590582    
+ID                               -4.215e-01  1.726e-01  -2.442 0.014896 *  
+Age                              -3.062e+00  6.495e+00  -0.471 0.637521    
+Attrition                         3.893e+00  1.314e+02   0.030 0.976377    
+BusinessTravelTravel_Frequently   2.352e+02  1.649e+02   1.427 0.154229    
+BusinessTravelTravel_Rarely       4.126e+02  1.411e+02   2.925 0.003570 ** 
+DailyRate                         6.469e-02  1.076e-01   0.601 0.548016    
+DepartmentResearch & Development  2.325e+02  5.545e+02   0.419 0.675178    
+DepartmentSales                  -2.751e+02  5.775e+02  -0.476 0.634034    
+DistanceFromHome                 -3.969e+00  5.400e+00  -0.735 0.462575    
+Education                        -2.605e+01  4.283e+01  -0.608 0.543280    
+EducationFieldLife Sciences      -1.880e+02  4.660e+02  -0.403 0.686774    
+EducationFieldMarketing          -2.561e+02  4.896e+02  -0.523 0.601153    
+EducationFieldMedical            -2.009e+02  4.670e+02  -0.430 0.667162    
+EducationFieldOther              -2.099e+02  4.934e+02  -0.425 0.670731    
+EducationFieldTechnical Degree   -1.302e+02  4.838e+02  -0.269 0.787967    
+EmployeeNumber                    4.241e-02  7.042e-02   0.602 0.547261    
+EnvironmentSatisfaction          -1.133e+01  3.899e+01  -0.290 0.771553    
+Gender                           -1.199e+02  8.601e+01  -1.394 0.163802    
+HourlyRate                       -3.772e-01  2.142e+00  -0.176 0.860267    
+JobInvolvement                    3.306e+01  6.302e+01   0.525 0.600067    
+JobLevel                          2.831e+03  9.653e+01  29.326  < 2e-16 ***
+JobRoleHuman Resources            1.493e+02  5.997e+02   0.249 0.803454    
+JobRoleLaboratory Technician     -5.570e+02  1.945e+02  -2.864 0.004334 ** 
+JobRoleManager                    4.131e+03  3.093e+02  13.357  < 2e-16 ***
+JobRoleManufacturing Director     9.274e+01  1.991e+02   0.466 0.641474    
+JobRoleResearch Director          3.837e+03  2.581e+02  14.866  < 2e-16 ***
+JobRoleResearch Scientist        -3.047e+02  1.981e+02  -1.538 0.124601    
+JobRoleSales Executive            4.883e+02  4.003e+02   1.220 0.222974    
+JobRoleSales Representative       8.551e+01  4.454e+02   0.192 0.847816    
+JobSatisfaction                   4.266e+01  3.880e+01   1.100 0.271969    
+MaritalStatus                     1.141e+02  8.897e+01   1.282 0.200290    
+MonthlyRate                      -1.712e-02  6.063e-03  -2.824 0.004904 ** 
+NumCompaniesWorked                2.566e+01  1.971e+01   1.302 0.193399    
+OverTime                          2.113e+01  9.672e+01   0.218 0.827148    
+PercentSalaryHike                 4.071e+01  1.855e+01   2.195 0.028525 *  
+PerformanceRating                -4.057e+02  1.915e+02  -2.118 0.034579 *  
+RelationshipSatisfaction          3.138e+01  3.918e+01   0.801 0.423519    
+StockOptionLevel                 -1.830e+01  5.310e+01  -0.345 0.730462    
+TotalWorkingYears                 4.920e+01  1.278e+01   3.849 0.000131 ***
+TrainingTimesLastYear             3.453e+01  3.398e+01   1.016 0.309909    
+WorkLifeBalance                  -5.663e+01  5.862e+01  -0.966 0.334432    
+YearsAtCompany                    6.546e+00  1.595e+01   0.410 0.681740    
+YearsInCurrentRole               -1.971e+01  1.988e+01  -0.991 0.321879    
+YearsSinceLastPromotion           2.994e+01  1.788e+01   1.675 0.094544 .  
+YearsWithCurrManager             -2.439e+01  1.887e+01  -1.293 0.196634    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 1056 on 606 degrees of freedom
+Multiple R-squared:  0.9492,	Adjusted R-squared:  0.9455 
+F-statistic: 251.9 on 45 and 606 DF,  p-value: < 2.2e-16
+
+For now, I'm going to select all of the variables with any number of asterisks next to them.  Those would be:
+
+1. ID                               *
+2. BusinessTravelTravel_Rarely      **  
+3. JobLevel                         ***  
+4. JobRoleLaboratoryTechnician      **  
+5. JobRoleManager                   ***
+6. JobRoleDirector                  ***  
+7. MonthlyRate                      **  
+8. PercentSalaryHike                *
+9. PerformanceRating                *
+10. TotalWorkingYears               ***
+
+Let's redo the lm() function and include only these variables.  
+
+```{r}
+Model1_salary2 = lm(MonthlyIncome~ID + BusinessTravel + JobLevel + JobRole + MonthlyRate + PercentSalaryHike + PerformanceRating + TotalWorkingYears, data = train_salary)
+summary(Model1_salary2)
+Model1_salary2_test = predict(Model1_salary2, newdata = train_salary)
+#as.data.frame(Model1_salary2_test)
+#View(Model1_salary2_test)
+#as.data.frame(test_salary$MonthlyIncome)
+#View(test_salary$MonthlyIncome)
+str(Model1_salary2_test)
+```
+Call:
+lm(formula = MonthlyIncome ~ ID + BusinessTravel + JobLevel + 
+    JobRole + MonthlyRate + PercentSalaryHike + PerformanceRating + 
+    TotalWorkingYears, data = train_salary)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4019.5  -663.0   -14.9   655.3  3859.1 
+
+Coefficients:
+                                  Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                      7.174e+02  5.016e+02   1.430  0.15314    
+ID                              -3.878e-01  1.661e-01  -2.334  0.01989 *  
+BusinessTravelTravel_Frequently  2.503e+02  1.601e+02   1.564  0.11830    
+BusinessTravelTravel_Rarely      4.094e+02  1.368e+02   2.992  0.00288 ** 
+JobLevel                         2.819e+03  9.356e+01  30.131  < 2e-16 ***
+JobRoleHuman Resources          -9.329e+01  3.046e+02  -0.306  0.75950    
+JobRoleLaboratory Technician    -5.868e+02  1.903e+02  -3.084  0.00213 ** 
+JobRoleManager                   3.950e+03  2.539e+02  15.560  < 2e-16 ***
+JobRoleManufacturing Director    1.900e+01  1.939e+02   0.098  0.92197    
+JobRoleResearch Director         3.790e+03  2.477e+02  15.303  < 2e-16 ***
+JobRoleResearch Scientist       -3.301e+02  1.941e+02  -1.701  0.08948 .  
+JobRoleSales Executive          -9.766e+01  1.613e+02  -0.606  0.54502    
+JobRoleSales Representative     -4.636e+02  2.474e+02  -1.874  0.06144 .  
+MonthlyRate                     -1.614e-02  5.918e-03  -2.727  0.00657 ** 
+PercentSalaryHike                3.884e+01  1.806e+01   2.150  0.03190 *  
+PerformanceRating               -4.264e+02  1.867e+02  -2.284  0.02270 *  
+TotalWorkingYears                4.770e+01  9.054e+00   5.269 1.88e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 1050 on 635 degrees of freedom
+Multiple R-squared:  0.9474,	Adjusted R-squared:  0.9461 
+F-statistic: 714.6 on 16 and 635 DF,  p-value: < 2.2e-16
+```{r}
+str(Model1_salary2_test)
+str(train_salary$MonthlyIncome)
+MSPE = sqrt(mean((Model1_salary2_test - train_salary$MonthlyIncome)^2))
+MSPE
+```
+Now, let's run the test set through the new model:
+
+```{r}
+Model1_salary2_test2 = predict(Model1_salary2, newdata = test_salary)
+#as.data.frame(Model1_salary2_test2)
+#View(Model1_salary2_test2)
+#as.data.frame(test_salary$MonthlyIncome)
+#View(test_salary$MonthlyIncome)
+str(Model1_salary2_test2)
+```
+```{r}
+MSPE = sqrt(mean((Model1_salary2_test2 - test_salary$MonthlyIncome)^2))
+MSPE
+```
+MSPE = sqrt(mean((Model1_salary2_test2 - test_salary$MonthlyIncome)^2))
+MSPE
+[1] 1075.748
+
+## That's much better!  Now, let's run the No Salary set through and see how accurate we can make it.  
+
+```{r}
+test_income <- readxl::read_excel(file.choose())
+str(test_income)
+#MonthlyIncome~ID + BusinessTravel(change to factor) + JobLevel + JobRole(change to factor) + MonthlyRate + PercentSalaryHike + PerformanceRating + TotalWorkingYears
+test_income$BusinessTravel <- as.factor(test_income$BusinessTravel)
+test_income$JobRole <- as.factor(test_income$JobRole)
+str(test_income)
+
+```
+
+```{r}
+Model_salary_test = lm(MonthlyIncome~ID + BusinessTravel + JobLevel + JobRole + MonthlyRate + PercentSalaryHike + PerformanceRating + TotalWorkingYears, data = train_salary)
+summary(Model_salary_test)
+Model_salary_test_final = predict(Model_salary_test, newdata = test_income)
+#as.data.frame(Model_salary_test_final)
+#View(Model_salary_test_final)
+#as.data.frame(test_income$MonthlyIncome)
+#View(test_income$MonthlyIncome)
+str(Model_salary_test_final)
+```
+
+```{r}
+MSPE = sqrt(mean((Model_salary_test_final - train_salary$MonthlyIncome)^2))
+MSPE
+```
+MSPE
+[1] 6226.768
+
+### Candidly, this isn't too much better than the prior model.  I'll have to cull further on the variables to get the most pertinent ones.  Let's look at the coefficients from the last round and cull. 
+
+
+Call:
+lm(formula = MonthlyIncome ~ ID + BusinessTravel + JobLevel + 
+    JobRole + MonthlyRate + PercentSalaryHike + PerformanceRating + 
+    TotalWorkingYears, data = train_salary)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4019.5  -663.0   -14.9   655.3  3859.1 
+
+Coefficients:
+                                  Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                      7.174e+02  5.016e+02   1.430  0.15314    
+ID                              -3.878e-01  1.661e-01  -2.334  0.01989 *  
+BusinessTravelTravel_Frequently  2.503e+02  1.601e+02   1.564  0.11830    
+BusinessTravelTravel_Rarely      4.094e+02  1.368e+02   2.992  0.00288 ** 
+JobLevel                         2.819e+03  9.356e+01  30.131  < 2e-16 ***
+JobRoleHuman Resources          -9.329e+01  3.046e+02  -0.306  0.75950    
+JobRoleLaboratory Technician    -5.868e+02  1.903e+02  -3.084  0.00213 ** 
+JobRoleManager                   3.950e+03  2.539e+02  15.560  < 2e-16 ***
+JobRoleManufacturing Director    1.900e+01  1.939e+02   0.098  0.92197    
+JobRoleResearch Director         3.790e+03  2.477e+02  15.303  < 2e-16 ***
+JobRoleResearch Scientist       -3.301e+02  1.941e+02  -1.701  0.08948 .  
+JobRoleSales Executive          -9.766e+01  1.613e+02  -0.606  0.54502    
+JobRoleSales Representative     -4.636e+02  2.474e+02  -1.874  0.06144 .  
+MonthlyRate                     -1.614e-02  5.918e-03  -2.727  0.00657 ** 
+PercentSalaryHike                3.884e+01  1.806e+01   2.150  0.03190 *  
+PerformanceRating               -4.264e+02  1.867e+02  -2.284  0.02270 *  
+TotalWorkingYears                4.770e+01  9.054e+00   5.269 1.88e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 1050 on 635 degrees of freedom
+Multiple R-squared:  0.9474,	Adjusted R-squared:  0.9461 
+F-statistic: 714.6 on 16 and 635 DF,  p-value: < 2.2e-16
+
+### I'm going to be aggressive and cull all but the *** coefficients, which would include:
+1. JobLevel
+2. JobRoleManager
+3. JobRoleDirector
+4. TotalWorkingYears
+
+I'm going to redo the analysis below.  
+
+
+```{r}
+Model_salary_test = lm(MonthlyIncome~JobLevel + TotalWorkingYears, data = train_salary)
+summary(Model_salary_test)
+Model_salary_test_final = predict(Model_salary_test, newdata = test_income)
+#as.data.frame(Model_salary_test_final)
+#View(Model_salary_test_final)
+#as.data.frame(test_income$MonthlyIncome)
+#View(test_income$MonthlyIncome)
+str(Model_salary_test_final)
+```
+
+Call:
+lm(formula = MonthlyIncome ~ JobLevel + JobRole + TotalWorkingYears, 
+    data = train_salary)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4059.6  -689.1   -17.9   661.1  4001.8 
+
+Coefficients:
+                              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                    -98.611    235.519  -0.419  0.67558    
+JobLevel                      2808.507     94.686  29.661  < 2e-16 ***
+JobRoleHuman Resources         -91.215    307.717  -0.296  0.76700    
+JobRoleLaboratory Technician  -598.191    192.951  -3.100  0.00202 ** 
+JobRoleManager                3962.954    255.134  15.533  < 2e-16 ***
+JobRoleManufacturing Director   53.760    196.654   0.273  0.78466    
+JobRoleResearch Director      3773.970    250.368  15.074  < 2e-16 ***
+JobRoleResearch Scientist     -285.595    196.962  -1.450  0.14755    
+JobRoleSales Executive         -76.091    163.655  -0.465  0.64213    
+JobRoleSales Representative   -431.599    248.427  -1.737  0.08281 .  
+TotalWorkingYears               47.989      9.182   5.227 2.34e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 1068 on 641 degrees of freedom
+Multiple R-squared:  0.9451,	Adjusted R-squared:  0.9442 
+F-statistic:  1103 on 10 and 641 DF,  p-value: < 2.2e-16
+
+### Removing Job Role completely:
+Call:
+lm(formula = MonthlyIncome ~ JobLevel + TotalWorkingYears, data = train_salary)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-5414.6  -896.8    63.3   717.0  3739.6 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(>|t|)    
+(Intercept)       -1741.78     117.69 -14.800  < 2e-16 ***
+JobLevel           3697.96      79.61  46.453  < 2e-16 ***
+TotalWorkingYears    53.02      11.60   4.572 5.79e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 1394 on 649 degrees of freedom
+Multiple R-squared:  0.9053,	Adjusted R-squared:  0.905 
+F-statistic:  3102 on 2 and 649 DF,  p-value: < 2.2e-16
+
+
+
+```{r}
+MSPE = sqrt(mean((Model_salary_test_final - train_salary$MonthlyIncome)^2))
+MSPE
+```
+
+### Let's try sifting through the MonthlyIncomes for the different Job Roles
+
+
+```{r}
+test_income$JobRole <- as.factor(test_income$JobRole)
+SalesExec <- test_income %>% filter(JobRole == "Sales Executive")
+SalesExec <- unlist(SalesExec)
+RScientist <- test_income %>% filter(JobRole == "Research Scientist")
+#View(RScientist) 
+LabTech <- test_income %>% filter(JobRole == "Laboratory Technician")
+#View(LabTech)
+SalesRep <- test_income %>% filter(JobRole == "Sales Representative")
+#View(SalesRep)
+ManuDir <- test_income %>% filter(JobRole == "Manufacturing Director")
+#View(ManuDir)
+HealthRep <- test_income %>% filter(JobRole == "Healthcare Representative")
+View(HealthRep)
+HR <- test_income %>% filter(JobRole == "Human Resources")
+#View(HR)
+Manager <- test_income %>% filter(JobRole == "Manager")
+#View(Manager)
+ResDir <- test_income %>% filter(JobRole == "Research Director")
+#View(ResDir)
+
+#sales + science + HR
+#Manager + Director + Representative + Technician
+
+```
+
+```{r}
+test_income$JobRole <- str_replace(test_income$JobRole,"Sales Executive", "1")
+test_income$JobRole <- str_replace(test_income$JobRole,"Research Scientist", "2")
+test_income$JobRole <- str_replace(test_income$JobRole,"Laboratory Technician", "3")
+test_income$JobRole <- str_replace(test_income$JobRole,"Sales Representative", "4")
+test_income$JobRole <- str_replace(test_income$JobRole,"Manufacturing Director", "5")
+test_income$JobRole <- str_replace(test_income$JobRole,"Healthcare Representative", "6")
+test_income$JobRole <- str_replace(test_income$JobRole,"Human Resources", "7")
+test_income$JobRole <- str_replace(test_income$JobRole,"Manager", "8")
+test_income$JobRole <- str_replace(test_income$JobRole,"Research Director", "9")
+
+#View(test_income$JobRole)
+test_income$JobRole <- as.factor(test_income$JobRole)
+#View(test_income)
+str(test_income$JobRole)
+```
+```{r}
+train_salary$JobRole <- str_replace(train_salary$JobRole,"Sales Executive", "1")
+train_salary$JobRole <- str_replace(train_salary$JobRole,"Research Scientist", "2")
+train_salary$JobRole <- str_replace(train_salary$JobRole,"Laboratory Technician", "3")
+train_salary$JobRole <- str_replace(train_salary$JobRole,"Sales Representative", "4")
+train_salary$JobRole <- str_replace(train_salary$JobRole,"Manufacturing Director", "5")
+train_salary$JobRole <- str_replace(train_salary$JobRole,"Healthcare Representative", "6")
+train_salary$JobRole <- str_replace(train_salary$JobRole,"Human Resources", "7")
+train_salary$JobRole <- str_replace(train_salary$JobRole,"Manager", "8")
+train_salary$JobRole <- str_replace(train_salary$JobRole,"Research Director", "9")
+
+#View(train_salary$JobRole)
+train_salary$JobRole <- as.factor(train_salary$JobRole)
+#View(test_income)
+str(train_salary$JobRole)
+
+#JobRole_final <- test_income %>% cbind(
+  
+library(forcats)
+x = fct_collapse(train_salary$JobRole, AB = c("3","8", "9"))
+y = fct_collapse(test_income$JobRole, AC = c("3","8", "9"))
+```
+
+
+
+#```{r}
+Model_salary_test = lm(MonthlyIncome~JobLevel + x + TotalWorkingYears, data = train_salary)
+summary(Model_salary_test)
+Model_salary_test_final = predict(Model_salary_test, newdata = test_income)
+#as.data.frame(Model_salary_test_final)
+#View(Model_salary_test_final)
+#as.data.frame(test_income$MonthlyIncome)
+#View(test_income$MonthlyIncome)
+str(Model_salary_test_final)
+#```
+
+Call:
+lm(formula = MonthlyIncome ~ JobLevel + JobRole + TotalWorkingYears, 
+    data = train_salary)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4059.6  -689.1   -17.9   661.1  4001.8 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(>|t|)    
+(Intercept)       -174.702    201.172  -0.868 0.385489    
+JobLevel          2808.507     94.686  29.661  < 2e-16 ***
+JobRole2          -209.505    160.047  -1.309 0.190998    
+JobRole3          -522.100    154.953  -3.369 0.000798 ***
+JobRole4          -355.509    218.605  -1.626 0.104386    
+JobRole5           129.850    163.516   0.794 0.427422    
+JobRole6            76.091    163.655   0.465 0.642128    
+JobRole7           -15.124    284.867  -0.053 0.957675    
+JobRole8          4039.045    235.752  17.133  < 2e-16 ***
+JobRole9          3850.061    229.183  16.799  < 2e-16 ***
+TotalWorkingYears   47.989      9.182   5.227 2.34e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 1068 on 641 degrees of freedom
+Multiple R-squared:  0.9451,	Adjusted R-squared:  0.9442 
+F-statistic:  1103 on 10 and 641 DF,  p-value: < 2.2e-16
+
+## NOW WE'RE GETTING SOMEWHERE!!!
+
+
+```{r}
+
+
+
+test_income <- within(test_income, JobRole <- relevel(JobRole, ref = 3))
+test_income <- within(test_income, JobRole <- relevel(JobRole, ref = 8))
+test_income <- within(test_income, JobRole <- relevel(JobRole, ref = 9))
+
+Model_salary_test = lm(MonthlyIncome~JobLevel + JobRole + TotalWorkingYears, data = train_salary)
+summary(Model_salary_test)
+Model_salary_test_final = predict(Model_salary_test, newdata = test_income)
+#as.data.frame(Model_salary_test_final)
+#View(Model_salary_test_final)
+#as.data.frame(test_income$MonthlyIncome)
+#View(test_income$MonthlyIncome)
+#View(Model_salary_test_final)
+#View(Model_salary_test)
+
+library(data.table)
+
+write.csv(Model_salary_test_final, "C:\\Users\\tgarn\\OneDrive\\Desktop\\SMU - MS Data Science\\Courses\\GitHub\\DS_6306_weekly_assignments\\Project_2\\CaseStudy2DDS\\CaseStudy2GarnerSalary.csv")
+
+MSPE = sqrt(mean((Model_salary_test_final - train_salary$MonthlyIncome)^2))
+MSPE
+```
+Well, I ended up back in the same place.  WHAT IF, I removed all of the other job titles from the data set and ran the remaining back through the regression model?  It's worth a try.  The rest of the analysis went nowhere.  I've got to move on to complete other items in the massive checklist on this project.  
+
+#```{r}
+test_income <- as.numeric(test_income)
+a = filter(test_income$JobRole == "Research Director" | "Manager" | "Research Scientist")
+#a
+#```
+I've munged the numbers so much that I think I need to start over, meaning to reload the data set and pick out the pieces that I need.  I know what I need:
+1. Job Level
+2. Job Role - Research director
+3. Job Role - Manager
+4. Job Role - Research Scientist
+5. Total Working Years
+
+#```{r}
+Income = readxl::read_excel(file.choose())
+#View(Income)
+str(Income)
+#```
+
+1. Job Level - num
+2. Job Role - Research director chr
+3. Job Role - Manager chr
+4. Job Role - Research Scientist chr
+5. Total Working Years num
+
+
+#```{r}
+#test_income <- as.numeric(test_income)
+Income_RDirector = filter(Income, JobRole == "Research Director")
+Income_RDirector
+Income_Manager = filter(Income, JobRole == "Manager")
+Income_Manager
+Income_RScientist = filter(Income, JobRole == "Research Scientist")
+Income_RScientist
+
+str(Income_RScientist)
+
+Job_Role = enframe(
+  c(Income_RDirector),
+  c(Income_Manager),
+  c(Income_RScientist))
+str(Job_Role)
+Job_Roles <- as.data.frame(Job_Role)
+#```
+## Now I have all three JobRoles in a tibble.  Let's see what I can do with that.  
+
+
+#```{r}
+Model_salary_test = lm(MonthlyIncome~JobLevel + Job_Roles + TotalWorkingYears, data = train_salary)
+summary(Model_salary_test)
+
+MSPE = sqrt(mean((Model_salary_test_final - train_salary$MonthlyIncome)^2))
+MSPE
+#```
+
+
+
+
+
+
+
+

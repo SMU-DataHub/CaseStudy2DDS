@@ -3,13 +3,13 @@ title: "Project 2 DS6306"
 author: "Todd Garner"
 date: "2023-04-01"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(dev = c('pdf', 'png'), 
-        fig.align = 'center', fig.height = 5, fig.width = 8.5, 
-        pdf.options(encoding = "ISOLatin9.enc")) 
+
 
 library(class)
 library(caret)
@@ -20,9 +20,544 @@ library(ggplot2)
 library(ggthemes)
 library(tidyverse)
 library(gridExtra)
-```
-```{r}
-CaseStudy2 = read.csv(file.choose(), header = TRUE)
-View(CaseStudy2)
+library(readxl)
 ```
 
+# Welsome Frito Lay - Attrition, trends, Monthly income predictor among other important tasks.
+##Pinnacle Economics, LLC would like to thank Frito Lay for hiring our company to do this important work for you.  We are honored and excited about performing these tasks.  The first thing I want to say is that the data set CaseStudy2-data.csv required some preparation prior to thorough analysis.  I used Excel to load the data set into RStudio by parsing the comma separated values into individual columns.  My work is shown and commented below.  
+
+```{r}
+#Load CaseStudy2-data_excel.xlsx from the main directory in the GitHub repo.  
+CS2 = readxl::read_excel(file.choose())
+#View(CS2)
+```
+Although it may not be absolutely necessary
+
+```{r}
+working <- CS2 %>% filter(Attrition == "No")
+working <- CS2 %>% filter(Attrition == "No")
+notworking <- CS2 %>% filter(Attrition == "Yes")
+tenure1 <- max(CS2$YearsAtCompany)
+
+#In order to perform a proper EDA, it's necessary to evaluate the "not working" elements of the full data set.  I've created numerous histograms in order to do just that.  These can all be found in the "images" folder in the GitHub repo.
+
+hist(notworking$Age)
+hist(notworking$Age)
+hist(notworking$YearsAtCompany)
+hist(notworking$Age, main = "Not Working and Age")
+hist(notworking$YearsAtCompany, main = "Not working and Years at the Company")
+hist(notworking$Age, main = "Not Working and Age")
+hist(notworking$YearsAtCompany, main = "Not working and Years at the Company", xlab = "Age", ylab = "Number of employees lost")
+hist(notworking$Age, main = "Age when employment ended", xlab = "Age", ylab = "Number of employees lost")
+hist(notworking$YearsAtCompany, main = "Years at the Company when employment ended", xlab = "Number of Years at the Company", ylab = "Number of employees lost")
+summary(notworking$Age)
+summary(notworking$YearsAtCompany)
+t.test(notworking$Age)
+t.test(notworking$YearsAtCompany)
+```
+```{r}
+hist(working$Age, main = "Age when employment ended", xlab = "Age", ylab = "Number of employees remaining")
+hist(working$YearsAtCompany, main = "Years at the Company when this data was taken", xlab = "Number of Years at the Company", ylab = "Number of employees lost")
+summary(working$Age)
+summary(working$YearsAtCompany)
+hist(working$Age, main = "Age when data was recorded", xlab = "Age", ylab = "Number of employees remaining")
+hist(working$YearsAtCompany, main = "Years at the Company when this data was recorded", xlab = "Number of Years at the Company", ylab = "Number of employees lost")
+summary(working$Age)
+summary(working$YearsAtCompany)
+hist(working$Age, main = "Age when data was recorded", xlab = "Age", ylab = "Number of employees remaining")
+hist(working$YearsAtCompany, main = "Years at the Company when this data was recorded", xlab = "Number of Years at the Company", ylab = "Number of employees remaining")
+summary(working$Age)
+summary(working$YearsAtCompany)
+t.test(working$Age)
+t.test(working$YearsAtCompany)
+```
+We have three useful data sets.  CS2 - all data, working - those employees still working at Frito Lay, notworking - those employees that have left the company.  Notworking could include fired, resigned, died, retired.  I can't think of any other reasons, but I don't think that's relevant.  
+
+I plotted all of the histograms and got the summary() for the notworking data set with with each variable on the X axis and the count on the Y axis.  Those were saved as PDF's.  A few were notable but we need more data analysis.  
+
+```{r}
+KNN_ALL <- CS2
+#View(KNN_ALL)
+```
+Now we have a new data.frame with all 870 observations.  Perhaps we should deal with missing values.  Amazingly, there appear to be no missing values.  So, there are a few columns that have binary values.  We can change those to 0 and 1.  All employees are/were over 18.  That column adds no value so we should drop it as well as EmployeeCount.  There are 5 columns with multiple characters in categories.  For now, I'm going to drop those columns out of the data.frame.  We will return and convert these to factors which assigns a "dummy" variable in the data set in place of the different levels in each variable/factor.   
+
+```{r}
+#summary(KNN_ALL)
+sum(is.na(KNN_ALL))
+
+
+#convert binary columns to 1s and 0s. 
+KNN_ALL$Attrition <- str_replace(KNN_ALL$Attrition,"No", "1")
+KNN_ALL$Attrition <- str_replace(KNN_ALL$Attrition,"Yes", "0")
+#KNN_ALL$Attrition
+KNN_ALL$Gender <- str_replace(KNN_ALL$Gender,"Female", "1")
+KNN_ALL$Gender <- str_replace(KNN_ALL$Gender,"Male", "0")
+#KNN_ALL$Gender
+KNN_ALL$OverTime <- str_replace(KNN_ALL$OverTime,"Yes", "1")
+KNN_ALL$OverTime <- str_replace(KNN_ALL$OverTime,"No", "0")
+#KNN_ALL$OverTime
+KNN_ALL$OverTime <- str_replace(KNN_ALL$OverTime,"Yes", "1")
+KNN_ALL$OverTime <- str_replace(KNN_ALL$OverTime,"No", "0")
+#KNN_ALL$OverTime
+
+#Remove the BusinessTravel, Department, EducationField, JobRole, MaritalStatus columns. These are the columns that have multiple levels.  
+KNN_ALL[ , c('BusinessTravel', 'Department', 'EducationField', 'JobRole', 'MaritalStatus')] <- list(NULL)
+#View(KNN_ALL)
+KNN_ALL[ , c('Over18')] <- list(NULL)
+#View(KNN_ALL)
+#summary(KNN_ALL)
+```
+We need to convert all character columns to numeric
+```{r}
+KNN_ALL$Attrition <- as.numeric(KNN_ALL$Attrition)
+KNN_ALL$Gender <- as.numeric(KNN_ALL$Gender)
+KNN_ALL$OverTime <- as.numeric(KNN_ALL$OverTime)
+#summary(KNN_ALL)
+str(KNN_ALL)
+```
+All columns are numeric.  Now, we need to scale all columns. But, first remove the binary columns.  Scaling those doesn't make sense.  We'll add those back shortly.  
+
+```{r}
+KNN_ALL[ , c('Attrition', 'EmployeeCount', 'Gender', 'OverTime')] <- list(NULL)
+#View(KNN_ALL)
+
+KNN_ALL_standardize <- as.data.frame(scale(KNN_ALL)) #, KNN_ALL[4:6], KNN_ALL[8:9], KNN_ALL[11:17], KNN_ALL[19:30]))
+#View(KNN_ALL_standardize)
+```
+We want to add back several of the binary columns to the KNN_ALL_standardized data.frame.  Attrition, EmployeeCount, Gender and OverTime
+
+```{r}
+KNN_ALL_standardize <- cbind(CS2$Attrition, CS2$EmployeeCount, CS2$Gender, CS2$OverTime, KNN_ALL_standardize)
+#View(KNN_ALL_standardize)
+
+colnames(KNN_ALL_standardize)[colnames(KNN_ALL_standardize) == 'CS2$OverTime'] <- 'OverTime'
+colnames(KNN_ALL_standardize)[colnames(KNN_ALL_standardize) == 'CS2$Gender'] <- 'Gender'
+colnames(KNN_ALL_standardize)[colnames(KNN_ALL_standardize) == 'CS2$EmployeeCount'] <- 'EmployeeCount'
+colnames(KNN_ALL_standardize)[colnames(KNN_ALL_standardize) == 'CS2$Attrition'] <- 'Attrition'
+
+KNN_ALL_standardize$Attrition <- str_replace(KNN_ALL_standardize$Attrition,"No", "1")
+KNN_ALL_standardize$Attrition <- str_replace(KNN_ALL_standardize$Attrition,"Yes", "0")
+#KNN_ALL_standardize$Attrition
+KNN_ALL_standardize$Gender <- str_replace(KNN_ALL_standardize$Gender,"Female", "1")
+KNN_ALL_standardize$Gender <- str_replace(KNN_ALL_standardize$Gender,"Male", "0")
+#KNN_ALL_standardize$Gender
+KNN_ALL_standardize$OverTime <- str_replace(KNN_ALL_standardize$OverTime,"Yes", "1")
+KNN_ALL_standardize$OverTime <- str_replace(KNN_ALL_standardize$OverTime,"No", "0")
+#KNN_ALL_standardize$OverTime
+KNN_ALL_standardize$OverTime <- str_replace(KNN_ALL_standardize$OverTime,"Yes", "1")
+KNN_ALL_standardize$OverTime <- str_replace(KNN_ALL_standardize$OverTime,"No", "0")
+#KNN_ALL_standardize$OverTime
+
+colnames(KNN_ALL_standardize)[colnames(KNN_ALL_standardize) == 'CS2$OverTime'] <- 'OverTime'
+colnames(KNN_ALL_standardize)[colnames(KNN_ALL_standardize) == 'CS2$Gender'] <- 'Gender'
+colnames(KNN_ALL_standardize)[colnames(KNN_ALL_standardize) == 'CS2$EmployeeCount'] <- 'EmployeeCount'
+colnames(KNN_ALL_standardize)[colnames(KNN_ALL_standardize) == 'CS2$Attrition'] <- 'Attrition'
+
+#head(KNN_ALL_standardize)
+str(KNN_ALL_standardize)
+```
+I had to rename the first four columns to the appropriate names and then change them to numeric. Attrition, Gender OverTime.
+
+```{r}
+KNN_ALL_standardize$Attrition <- as.numeric(KNN_ALL_standardize$Attrition)
+KNN_ALL_standardize$Gender <- as.numeric(KNN_ALL_standardize$Gender)
+KNN_ALL_standardize$OverTime <- as.numeric(KNN_ALL_standardize$OverTime)
+#summary(KNN_ALL_standardize)
+str(KNN_ALL_standardize)
+```
+
+Now the KNN_ALL_standardize data.frame is ready for analysis.  Thinking this through, there are many more data points in the Attrition = "No" category than "Yes".  Attrition = "No" means they are still employed at Frito Lay, or were when this data was gathered.  Perhaps it's best to split the dataset into a training and testing set to see if it remains as unbalanced.  
+```{r}
+splitPerc = .75
+Full_set = KNN_ALL_standardize %>% filter(Attrition == "1" | Attrition == "0")
+trainInices = sample(1:dim(Full_set)[1],round(splitPerc * dim(Full_set)[1]))
+train = Full_set[trainInices,]
+test = Full_set[-trainInices,]
+```
+
+```{r}
+summary(train)
+summary(test)
+#View(train)
+#View(test)
+dim(train$Attrition)
+Only1 = train %>% filter(Attrition == "1")
+#Only1
+```
+Now we have a train & test set we can set up the KNN analysis.  Standard Hours came back as NaN so I'll remove that column since they were all 80 anyway.  
+```{r}
+KNN_ALL_standardize[ , c('StandardHours')] <- list(NULL)
+#View(KNN_ALL_standardize)
+```
+
+
+```{r}
+knn.cv(KNN_ALL_standardize[,1:29],KNN_ALL_standardize$Attrition, k = 5, l=0, prob = FALSE, use.all = TRUE)
+confusionMatrix(table(knn.cv(KNN_ALL_standardize[,1:29],KNN_ALL_standardize$Attrition, k = 5), KNN_ALL_standardize$Attrition))
+```
+Confusion Matrix and Statistics
+
+   
+      0   1
+  0  26   5
+  1 114 725
+                                          
+               Accuracy : 0.8632          
+                 95% CI : (0.8386, 0.8854)
+    No Information Rate : 0.8391          
+    P-Value [Acc > NIR] : 0.02739         
+                                          
+                  Kappa : 0.261           
+                                          
+ Mcnemar's Test P-Value : < 2e-16         
+                                          
+            Sensitivity : 0.18571         
+            Specificity : 0.99315         
+         Pos Pred Value : 0.83871         
+         Neg Pred Value : 0.86412         
+             Prevalence : 0.16092         
+         Detection Rate : 0.02989         
+   Detection Prevalence : 0.03563         
+      Balanced Accuracy : 0.58943         
+                                          
+       'Positive' Class : 0   
+
+The working (1) outnumber the notworking (0) 730/130  we need to even up those numbers by shear force.
+```{r}
+sum(KNN_ALL_standardize$Attrition)
+140/(730)
+
+OnlyNF = KNN_ALL_standardize %>% filter(Attrition == "1")
+OnlyNFUnder = OnlyNF[sample(seq(1,730,1),140),]
+#OnlyNFUnder
+
+
+UnderSamp = rbind(KNN_ALL_standardize %>% filter(Attrition == "0"), OnlyNFUnder)
+dim(UnderSamp)
+#UnderSamp
+
+classifications = knn(UnderSamp[,1:29],UnderSamp[1:29],UnderSamp[,1], prob = TRUE, k = 5)
+
+table(classifications,UnderSamp[,1])
+CM = confusionMatrix(table(classifications,UnderSamp[,1]))
+CM
+```
+table(classifications,UnderSamp[,1])
+               
+classifications   0   1
+              0 102  13
+              1  38 127
+CM = confusionMatrix(table(classifications,UnderSamp[,1]))
+CM
+Confusion Matrix and Statistics
+
+               
+classifications   0   1
+              0 112  14
+              1  28 126
+                                          
+               Accuracy : 0.85            
+                 95% CI : (0.8027, 0.8897)
+    No Information Rate : 0.5             
+    P-Value [Acc > NIR] : < 2e-16         
+                                          
+                  Kappa : 0.7             
+                                          
+ Mcnemar's Test P-Value : 0.04486         
+                                          
+            Sensitivity : 0.8000          
+            Specificity : 0.9000          
+         Pos Pred Value : 0.8889          
+         Neg Pred Value : 0.8182          
+             Prevalence : 0.5000          
+         Detection Rate : 0.4000          
+   Detection Prevalence : 0.4500          
+      Balanced Accuracy : 0.8500          
+                                          
+       'Positive' Class : 0   
+
+Balancing the sets has clearly made a big difference in the accuracy, Sensitivity and Specificity.  Now, let's try the non-labeled attrition data set as our test set - CaseStudy2CompSet No Attrition.csv.  I'm going to have to go through the same steps above to clean up the data set and prepare it for the model.  I am going to copy and paste the steps above, down below so that the process remains intact and can be reproducible.  I will also have to take care and modify the set names so the data from the original set "CaseStudy2-data.csv" does not mix with the data from "CaseStudy2CompSet No Attrition.csv".  As can be seen above, the original data set would not split into separate columns using the normal means.  I have utilized Excel Query to transform the data into separated columns and saved into .xlsx format.  
+
+
+
+```{r}
+#Load in the CaseStudy2 No Attrition_excel.xlsx from the main repo
+CS2NA = readxl::read_excel(file.choose())
+#View(CS2NA)
+str(CS2NA)
+```
+```{r}
+tenure1NA <- max(CS2NA$YearsAtCompany)
+#tenure1NA
+
+hist(CS2NA$Age)
+hist(CS2NA$Age)
+hist(CS2NA$YearsAtCompany)
+hist(CS2NA$Age, main = "Age")
+hist(CS2NA$YearsAtCompany, main = "Years at the Company")
+hist(CS2NA$Age, main = "Age")
+hist(CS2NA$YearsAtCompany, main = "Years at the Company", xlab = "Age", ylab = "Number of employees lost")
+hist(CS2NA$Age, main = "Age", xlab = "Age", ylab = "Number of employees")
+hist(CS2NA$YearsAtCompany, main = "Years at the Company", xlab = "Number of Years at the Company", ylab = "Number of employees")
+summary(CS2NA$Age)
+summary(CS2NA$YearsAtCompany)
+t.test(CS2NA$Age)
+t.test(CS2NA$YearsAtCompany)
+```
+```{r}
+hist(CS2NA$Age, main = "Age", xlab = "Age", ylab = "Number of employees")
+hist(CS2NA$YearsAtCompany, main = "Years at the Company when this data was taken", xlab = "Number of Years at the Company", ylab = "Number of employees lost")
+summary(CS2NA$Age)
+summary(CS2NA$YearsAtCompany)
+hist(CS2NA$Age, main = "Age when data was recorded", xlab = "Age", ylab = "Number of employees remaining")
+hist(CS2NA$YearsAtCompany, main = "Years at the Company when this data was recorded", xlab = "Number of Years at the Company", ylab = "Number of employees")
+summary(CS2NA$Age)
+summary(CS2NA$YearsAtCompany)
+hist(CS2NA$Age, main = "Age when data was recorded", xlab = "Age", ylab = "Number of employees")
+hist(CS2NA$YearsAtCompany, main = "Years at the Company when this data was recorded", xlab = "Number of Years at the Company", ylab = "Number of employees")
+summary(CS2NA$Age)
+summary(CS2NA$YearsAtCompany)
+t.test(CS2NA$Age)
+t.test(CS2NA$YearsAtCompany)
+```
+We have one useful data set.  CS2NA - all data.  From here, we continue cleaning up the data set to apply it as the test set against the training set from the prior data set.    
+
+
+```{r}
+KNN_ALLNA <- CS2NA
+#View(KNN_ALLNA)
+```
+Now we have a new data.frame with all 300 observations.  Perhaps we should deal with missing values.  Once again, there appear to be no missing values.  So, there are a few columns that have binary values.  We can change those to 0 and 1.  All employees are/were over 18 and EmployeeCount is always 1.  Those columns adds no value so we should drop them.  There are 5 columns with multiple characters in categories.  For now, I'm going to drop those columns out of the data.frame.  
+
+```{r}
+summary(KNN_ALLNA)
+sum(is.na(KNN_ALLNA))
+
+
+#convert binary columns to 1s and 0s. 
+
+KNN_ALLNA$Gender <- str_replace(KNN_ALLNA$Gender,"Female", "1")
+KNN_ALLNA$Gender <- str_replace(KNN_ALLNA$Gender,"Male", "0")
+#KNN_ALLNA$Gender
+KNN_ALLNA$OverTime <- str_replace(KNN_ALLNA$OverTime,"Yes", "1")
+KNN_ALLNA$OverTime <- str_replace(KNN_ALLNA$OverTime,"No", "0")
+#KNN_ALLNA$OverTime
+KNN_ALLNA$OverTime <- str_replace(KNN_ALLNA$OverTime,"Yes", "1")
+KNN_ALLNA$OverTime <- str_replace(KNN_ALLNA$OverTime,"No", "0")
+#KNN_ALLNA$OverTime
+
+#Remove the BusinessTravel, Department, EducationField, JobRole, MaritalStatus columns. These have multiple categorical values that we can return to if necessary.  
+KNN_ALLNA[ , c('BusinessTravel', 'Department', 'EducationField', 'JobRole', 'MaritalStatus')] <- list(NULL)
+#View(KNN_ALLNA)
+KNN_ALLNA[ , c('Over18', 'EmployeeCount')] <- list(NULL)
+#View(KNN_ALLNA)
+summary(KNN_ALLNA)
+```
+We need to convert all character columns to numeric
+```{r}
+KNN_ALLNA$Gender <- as.numeric(KNN_ALLNA$Gender)
+KNN_ALLNA$OverTime <- as.numeric(KNN_ALLNA$OverTime)
+summary(KNN_ALLNA)
+str(KNN_ALLNA)
+```
+All columns are numeric.  Now, we need to scale all columns. But, first remove the binary columns.
+
+```{r}
+KNN_ALLNA[ , c('EmployeeCount', 'Gender', 'OverTime')] <- list(NULL)
+#View(KNN_ALLNA)
+
+KNN_ALLNA_standardize <- as.data.frame(scale(KNN_ALLNA)) #, KNN_ALL[4:6], KNN_ALL[8:9], KNN_ALL[11:17], KNN_ALL[19:30]))
+#View(KNN_ALLNA_standardize)
+```
+We want to add back several of the binary columns to the KNN_ALL_standardized data.frame.  Attrition, EmployeeCount, Gender and OverTime.  When added back, the column names still reference the prior data set so we will modify the column names to the proper column headers.  
+
+```{r}
+KNN_ALLNA_standardize <- cbind(CS2NA$EmployeeCount, CS2NA$Gender, CS2NA$OverTime, KNN_ALLNA_standardize)
+#View(KNN_ALLNA_standardize)
+
+colnames(KNN_ALLNA_standardize)[colnames(KNN_ALLNA_standardize) == 'CS2NA$OverTime'] <- 'OverTime'
+colnames(KNN_ALLNA_standardize)[colnames(KNN_ALLNA_standardize) == 'CS2NA$Gender'] <- 'Gender'
+
+
+KNN_ALLNA_standardize$Gender <- str_replace(KNN_ALLNA_standardize$Gender,"Female", "1")
+KNN_ALLNA_standardize$Gender <- str_replace(KNN_ALLNA_standardize$Gender,"Male", "0")
+#KNN_ALLNA_standardize$Gender
+KNN_ALLNA_standardize$OverTime <- str_replace(KNN_ALLNA_standardize$OverTime,"Yes", "1")
+KNN_ALLNA_standardize$OverTime <- str_replace(KNN_ALLNA_standardize$OverTime,"No", "0")
+#KNN_ALLNA_standardize$OverTime
+KNN_ALLNA_standardize$OverTime <- str_replace(KNN_ALLNA_standardize$OverTime,"Yes", "1")
+KNN_ALLNA_standardize$OverTime <- str_replace(KNN_ALLNA_standardize$OverTime,"No", "0")
+#KNN_ALLNA_standardize$OverTime
+
+colnames(KNN_ALLNA_standardize)[colnames(KNN_ALLNA_standardize) == 'CS2NA$OverTime'] <- 'OverTime'
+colnames(KNN_ALLNA_standardize)[colnames(KNN_ALLNA_standardize) == 'CS2NA$Gender'] <- 'Gender'
+
+#I inadvertently added back EmployeeCount, so it must be removed
+KNN_ALLNA_standardize[ , c('CS2NA$EmployeeCount')] <- list(NULL)
+#View(KNN_ALLNA_standardize)
+
+
+#head(KNN_ALLNA_standardize)
+str(KNN_ALLNA_standardize)
+```
+I had to rename the first two columns to the appropriate names and then change them to numeric. Gender and OverTime.
+
+```{r}
+
+KNN_ALLNA_standardize$Gender <- as.numeric(KNN_ALLNA_standardize$Gender)
+KNN_ALLNA_standardize$OverTime <- as.numeric(KNN_ALLNA_standardize$OverTime)
+summary(KNN_ALLNA_standardize)
+str(KNN_ALLNA_standardize)
+```
+
+I wasn't thinking when I took out EmployeeCount on the second set because now I have uneven sets.  One with 29 columns and the other with 28.  So, I'm going to remove EmployeeCount from the first set to even things up.  
+
+```{r}
+KNN_ALL_standardize[ , c('EmployeeCount')] <- list(NULL)
+#View(KNN_ALL_standardize)
+```
+I've noticed that StandardHours is all NaN and must be removed.  That will once again make the data sets uneven.  Which, of course, is as expected since one set has Attrition and the other doesn't.  
+
+```{r}
+KNN_ALLNA_standardize[ , c('StandardHours')] <- list(NULL)
+#View(KNN_ALLNA_standardize)
+str(KNN_ALLNA_standardize)
+str(KNN_ALL_standardize)
+```
+
+
+```{r}
+knn.cv(KNN_ALLNA_standardize,KNN_ALL_standardize$Attrition[1:300], k = 5, l=0, prob = FALSE, use.all = TRUE)
+confusionMatrix(table(knn.cv(KNN_ALLNA_standardize,KNN_ALL_standardize$Attrition[1:300],, k = 5), KNN_ALL_standardize$Attrition[1:300]))
+
+#View(KNN_ALL_standardize$Attrition[1:300])
+
+```
+We clearly have an unbalanced data set, as seen below:
+
+Confusion Matrix and Statistics
+
+   
+      0   1
+  0   1   2
+  1  43 254
+                                          
+               Accuracy : 0.85            
+                 95% CI : (0.8045, 0.8884)
+    No Information Rate : 0.8533          
+    P-Value [Acc > NIR] : 0.6036          
+                                          
+                  Kappa : 0.0243          
+                                          
+ Mcnemar's Test P-Value : 2.479e-09       
+                                          
+            Sensitivity : 0.022727        
+            Specificity : 0.992188        
+         Pos Pred Value : 0.333333        
+         Neg Pred Value : 0.855219        
+             Prevalence : 0.146667        
+         Detection Rate : 0.003333        
+   Detection Prevalence : 0.010000        
+      Balanced Accuracy : 0.507457        
+                                          
+       'Positive' Class : 0        
+       
+We will need to perform the same rebalancing actions to get a more meaningful result.  This raises the question of whether we should reduce the number of 1s (the remaining or current employees) to 44 or raise the 0's (employees that have left the company to 256.  I'm going to opt for raising the number of 0s to 256.
+
+```{r}
+#View(KNN_ALL_standardize[,1:300])
+#44/(256)
+
+OnlyNFNA = KNN_ALL_standardize[1:870,] %>% filter(Attrition == "0")
+OnlyNFNAOver = OnlyNFNA[sample(seq(1,300,1),256),]
+#OnlyNFNAOver
+#OnlyNFNAOver <- filter(is.na(OnlyNFNAOver))
+#OnlyNFNAOver
+
+# Using drop_na() function of tidyr package to remove na rows
+library(tidyr)
+OnlyNFNAOver1 <- OnlyNFNAOver %>% drop_na()
+str(OnlyNFNAOver1)
+
+
+OverSamp1 = rbind(KNN_ALL_standardize[1:300,] %>% filter(Attrition == "1"), OnlyNFNAOver1) #This filters to the remaining/current employees
+dim(OverSamp1)
+#View(OverSamp1)
+
+classifications = knn(OverSamp1[,1:28],OverSamp1[1:28],OverSamp1[,1], prob = TRUE, k = 5)
+
+table(classifications,OverSamp1[,1])
+CM = confusionMatrix(table(classifications,OverSamp1[,1]))
+CM
+```
+This leaves the 0s & 1s still unbalanced but you can't argue with results.  .888 on Accuracy and well over 60% on Sensitivity and Specificity.  
+
+table(classifications,OverSamp1[,1])
+               
+classifications   0   1
+              0  80   3
+              1  39 253
+CM = confusionMatrix(table(classifications,OverSamp1[,1]))
+CM
+Confusion Matrix and Statistics
+
+               
+classifications   0   1
+              0  80   3
+              1  39 253
+                                          
+               Accuracy : 0.888           
+                 95% CI : (0.8516, 0.9181)
+    No Information Rate : 0.6827          
+    P-Value [Acc > NIR] : < 2.2e-16       
+                                          
+                  Kappa : 0.7187          
+                                          
+ Mcnemar's Test P-Value : 6.641e-08       
+                                          
+            Sensitivity : 0.6723          
+            Specificity : 0.9883          
+         Pos Pred Value : 0.9639          
+         Neg Pred Value : 0.8664          
+             Prevalence : 0.3173          
+         Detection Rate : 0.2133          
+   Detection Prevalence : 0.2213          
+      Balanced Accuracy : 0.8303          
+                                          
+       'Positive' Class : 0                   
+                                    
+Finally, I need to "unscale" the ID column to obtain the ID number of the employee.  There are a number of "unscale" functions and methods that I could have employed, but none of them seemed to work very well.  The DMwR package holds an unscale function but it seems to be out of date.  I ended up just matching and sorting to get the EmployeeID.  I suppose that the EmployeeNumber would do just as well, but ID is what is shown in the EXAMPLE.  I have exported the unscaled ID and EmployeeNumber and the Scaled ID and Employee Number to an excel worksheet to match when we're done.  
+
+```{r}
+library(data.table)
+g <- cbind(KNN_ALL$ID, KNN_ALL$EmployeeNumber)
+h <- cbind(KNN_ALL_standardize$ID, KNN_ALL_standardize$EmployeeNumber)
+
+
+fwrite(g, "C:\\Users\\tgarn\\OneDrive\\Desktop\\SMU - MS Data Science\\Courses\\GitHub\\DS_6306_weekly_assignments\\Project_2\\CaseStudy2DDS\\g.csv")
+fwrite(h, "C:\\Users\\tgarn\\OneDrive\\Desktop\\SMU - MS Data Science\\Courses\\GitHub\\DS_6306_weekly_assignments\\Project_2\\CaseStudy2DDS\\h.csv")
+```
+From these two CSVs, I've created a table of original/unscaled numbers and scaled numbers in a table in order to match them when completed.  
+
+```{r}
+TrueEmployee <- OverSamp1 %>% filter(OverSamp1$Attrition == "1")
+View(TrueEmployee)
+TrueAttrition <- OverSamp1 %>% filter(OverSamp1$Attrition == "0")
+View(TrueAttrition)
+
+fwrite(TrueAttrition, "C:\\Users\\tgarn\\OneDrive\\Desktop\\SMU - MS Data Science\\Courses\\GitHub\\DS_6306_weekly_assignments\\Project_2\\CaseStudy2DDS\\Attrition.csv")
+
+```
+I pulled in the Attrition.csv data.table and combined them to arrive at the set of those that are predicted to have left the company as shown in the CaseStudy2GarnerAttrition.csv in the main file directory.  
+
+```{r}
+#Load in the Attrition.csv from the main repo nearby
+ID_match <- read.csv(file.choose(), header = TRUE, sep = ",")
+#ID_match
+
+CaseStudy2Predictions <- data.table(match(ID_match$ID_scaled, ID_match$ID_actual, nomatch = "0"))
+
+
+fwrite(CaseStudy2Predictions, "C:\\Users\\tgarn\\OneDrive\\Desktop\\SMU - MS Data Science\\Courses\\GitHub\\DS_6306_weekly_assignments\\Project_2\\CaseStudy2DDS\\CaseStudy2GarnerAttrition.csv")
+```
+In order to find the top three factors that lead to attrition, I need to use a different method.  I think simple linear regression (SLR) and multiple linear regression (MLR) should be the first item I'll chose.  In order to keep the size of the file to a reasonable level, I'm going to jump to another RMarkdown file to begin that work.  That work can be found in the Project_2a_reg_eval.Rmd file nearby.  
