@@ -35,4 +35,8 @@ CaseStudy2GarnerSalary.csv
 
 https://github.com/SMU-DataHub/CaseStudy2DDS/blob/main/Presentation_Frito_Lay.mp4
 
+#ShinyApp
+
+https://ctg-smu-data.shinyapps.io/CaseStudy2DDS/
+
 
