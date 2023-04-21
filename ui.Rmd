@@ -1,0 +1,70 @@
+---
+title: "CaseStudy2"
+author: "Todd Garner"
+date: "2023-04-20"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Load the required package
+library(shiny)
+
+# Define the UI for the application
+ui <- fluidPage(
+  titlePanel("Employment Status Calculator"),
+
+  sidebarLayout(
+    sidebarPanel(
+      radioButtons("varA", "Job Involvement: Select 1 - 4",
+                   choices = c(1, 2, 3, 4),
+                   selected = 1),
+      radioButtons("varB", "Job Satisfaction: Select 1 - 4",
+                   choices = c(1, 2, 3, 4),
+                   selected = 1),
+      radioButtons("varC", "Overtime: 0 or 1",
+                   choices = c(0, 1),
+                   selected = 0)
+    ),
+
+    mainPanel(
+      textOutput("result")
+    )
+  )
+)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

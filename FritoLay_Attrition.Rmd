@@ -1,0 +1,67 @@
+---
+title: "CaseStudy2_RShinyApp"
+author: "Todd Garner"
+date: "2023-04-21"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+```{r}
+# Load the required package
+ui <- library(shiny)
+
+# Define the UI for the application
+fluidPage(
+  titlePanel("Employment Status Calculator"),
+
+  sidebarLayout(
+    sidebarPanel(
+      radioButtons("varA", "Job Involvement: Select 1 - 4",
+                   choices = c(1, 2, 3, 4),
+                   selected = 1),
+      radioButtons("varB", "Job Satisfaction: Select 1 - 4",
+                   choices = c(1, 2, 3, 4),
+                   selected = 1),
+      radioButtons("varC", "Overtime: 0 or 1",
+                   choices = c(0, 1),
+                   selected = 0)
+    ),
+
+    mainPanel(
+      textOutput("result")
+    )
+  )
+)
+
+# Define the server logic for the application
+server <- function(input, output) {
+
+  output$result <- renderText({
+    # Convert the input values to numeric
+    num_varA <- as.numeric(input$varA)
+    num_varB <- as.numeric(input$varB)
+    num_varC <- as.numeric(input$varC)
+
+    # Equation logic
+    equation_result <- .4687 + 0.09136*input$varA + 0.04156*input$varB - 0.21743*input$varC
+
+    # Determine employment status
+    if (equation_result > 0.5) {
+      employment_status <- "Employed"
+    } else {
+      employment_status <- "Unemployed"
+    }
+
+    paste("Employment status:", employment_status)
+  })
+}
+
+
+# Run the application
+shinyApp(ui = ui, server = server)
+```
